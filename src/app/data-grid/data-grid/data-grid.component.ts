@@ -1,6 +1,6 @@
 import {
     Component, OnInit, Input, ContentChildren, QueryList,
-    AfterViewInit, AfterContentInit, ElementRef, TemplateRef,
+    AfterViewInit, ElementRef, TemplateRef,
     ChangeDetectorRef, HostListener, EventEmitter, Output, NgZone, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'rxjs/add/operator/debounceTime';
@@ -8,10 +8,10 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/switchMap';
-import {GridColumnComponent, Column} from '../data-grid-column/data-grid-column.component';
-import {filter} from "lodash";
-import {fromEvent} from "rxjs/observable/fromEvent";
-import {random} from "lodash";
+import { GridColumnComponent, Column } from '../data-grid-column/data-grid-column.component';
+import { filter } from "lodash";
+import { fromEvent } from "rxjs/observable/fromEvent";
+import { random } from "lodash";
 import "rxjs/operator/debounceTime";
 
 type selectionMode = "single" | "multiple";
@@ -51,13 +51,15 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-row [ngForOf]="innerData" [ngForTrackBy]="trackByIdentifier">
+                    <template ngFor let-row [ngForOf]="virtualData" [ngForTrackBy]="trackByIdentifier">
                         <data-grid-row [columns]="columns" 
                                        [rowData]="row" 
                                        [expandTemplate]="expandTemplate"
                                        [showSelectionInput]="showSelectionInput"
                                        [selectionMode]="selectionMode"
                                        [rowMarkField]="rowMarkField"
+                                       [virtualScrollingEnabled]="true"
+                                       (onRowHeightChanged)="onRowHeightChanged()"
                                        (onRowSelectionChanged)="onRowSelectionChanged($event)">
                         </data-grid-row>
                     </template>
@@ -69,7 +71,7 @@ type selectionMode = "single" | "multiple";
     `,
     styleUrls: ['data-grid.component.less']
 })
-export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterContentInit {
+export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly identifierField: string;
     @Input() public readonly data: any[];
     @Input() public selected: any[];
@@ -83,6 +85,11 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     @Output() public onSortChanged: EventEmitter<SortChangedEvent> = new EventEmitter();
     @Output() public onLoadNextPage: EventEmitter<LoadNextPageEvent> = new EventEmitter();
     @ContentChildren(GridColumnComponent) public gridColumns: QueryList<GridColumnComponent>;
+
+    public virtualData: RowData[];
+    public virtualRecordsNumber: number = 30;
+    public scrollableValue: number = 0;
+    private rowHeight: number = 35;
 
     public sorting: boolean = false;
     public sortingAscending: boolean = true;
@@ -98,13 +105,18 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     private allSelected: boolean;
     private isLoading: boolean;
 
-    constructor(private element: ElementRef,
-                private changeDetector: ChangeDetectorRef,
-                private ngZone: NgZone) {
+    private bodyElement: HTMLDivElement;
+
+    constructor(
+        private element: ElementRef,
+        private changeDetector: ChangeDetectorRef,
+        private ngZone: NgZone) {
     }
 
     public ngOnInit(): void {
         this.isLoading = true;
+
+        this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
         this.subscribeToBodyScrolling();
     }
@@ -121,9 +133,6 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
     public ngAfterViewInit(): void {
         this.initializeColumns();
-    }
-
-    public ngAfterContentInit(): void {
     }
 
     public get selectedCount(): number {
@@ -235,6 +244,14 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
     }
 
+    public onRowHeightChanged($event: RowHeightChangedEvent): void {
+        let totalHeight = this.innerData.reduce((previousValue: RowData, currentValue: RowData) => {
+            return { rowHeight: previousValue.rowHeight + currentValue.rowHeight };
+        });
+
+        this.bodyElement.style.height = `${totalHeight.rowHeight}px`;
+    }
+
     private clearResizingData(): void {
         DomHelper.removeClassFromChildren(
             this.element.nativeElement,
@@ -249,24 +266,22 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
     private subscribeToBodyScrolling(): void {
         this.ngZone.runOutsideAngular(() => {
-            let bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
-
-            fromEvent(bodyElement, "scroll")
+            fromEvent(this.bodyElement, "scroll")
                 .debounceTime(100)
                 .subscribe(() => {
-                    if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
+                    if (this.bodyElement.scrollTop + this.bodyElement.clientHeight === this.bodyElement.scrollHeight) {
                         this.ngZone.run(() => {
                             ++this.currentPage;
 
-                            this.isLoading = true;
+                            /*this.isLoading = true;
 
-                            this.onLoadNextPage.emit({
-                                page: this.currentPage,
-                                from: this.currentPage * this.rowsPerPage,
-                                rowsPerPage: this.rowsPerPage,
-                                sortField: this.sortField,
-                                sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
-                            });
+                             this.onLoadNextPage.emit({
+                             page: this.currentPage,
+                             from: this.currentPage * this.rowsPerPage,
+                             rowsPerPage: this.rowsPerPage,
+                             sortField: this.sortField,
+                             sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
+                             });*/
                         });
                     }
                 });
@@ -276,12 +291,18 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     private processData(data: any[]): void {
         this.innerData = data
             ? data.map((item: any) => <RowData>(
-            {
-                identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
-                data: item,
-                selected: this.allSelected
-            }))
-            : [];
+                {
+                    identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
+                    data: item,
+                    selected: this.allSelected,
+                    rowHeight: this.rowHeight
+                }))
+            :
+            [];
+
+        this.virtualData = this.innerData.slice(0, this.virtualRecordsNumber);
+
+        this.setInitialBodyHeight();
 
         this.isLoading = false;
     }
@@ -297,6 +318,14 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             });
             row.selected = found;
         });
+    }
+
+    private setInitialBodyHeight(): void {
+        if (this.bodyElement) {
+            let totalHeight = this.innerData.length * this.rowHeight;
+
+            this.bodyElement.style.height = `${totalHeight}px`;
+        }
     }
 }
 
@@ -316,6 +345,7 @@ export interface RowData {
     identifier?: string;
     selected?: boolean;
     expanded?: boolean;
+    rowHeight?: number;
     data?: any;
 }
 
@@ -325,6 +355,12 @@ export interface LoadNextPageEvent {
     rowsPerPage: number;
     sortField?: string;
     sortDirection?: string;
+}
+
+export interface RowHeightChangedEvent {
+    previousValue: number;
+    currentValue: number;
+    rowData: RowData;
 }
 
 export class DomHelper {

@@ -1,8 +1,9 @@
 import {
-    Component, Input, Output, EventEmitter, TemplateRef, OnInit
+    Component, Input, Output, EventEmitter, TemplateRef, OnInit, ElementRef, AfterContentChecked,
+    ChangeDetectionStrategy, ChangeDetectorRef, AfterViewChecked
 } from '@angular/core';
 import { Column } from "../data-grid-column/data-grid-column.component";
-import {RowMarkData, RowData} from "../data-grid/data-grid.component";
+import { RowMarkData, RowData, RowHeightChangedEvent } from "../data-grid/data-grid.component";
 
 @Component({
     selector: 'data-grid-row',
@@ -40,20 +41,31 @@ import {RowMarkData, RowData} from "../data-grid/data-grid.component";
           </div>
       </div>
   `,
-    styleUrls: ['./data-grid-row.component.less'],
+    styleUrls: ['./data-grid-row.component.less']
 })
-export class DataGridRowComponent implements OnInit {
+export class DataGridRowComponent implements OnInit, AfterViewChecked {
     @Input() public columns: Column[];
     @Input() public rowData: RowData;
     @Input() public showSelectionInput: boolean;
     @Input() public selectionMode: string;
     @Input() public expandTemplate: TemplateRef<any>;
     @Input() public rowMarkField: string;
+    @Input() public virtualScrollingEnabled: string;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public onRowExpanded: EventEmitter<any> = new EventEmitter();
+    @Output() public onRowHeightChanged: EventEmitter<RowHeightChangedEvent> = new EventEmitter();
+
+    constructor(private element: ElementRef, private changeDetector: ChangeDetectorRef) {
+    }
 
     public ngOnInit(): void {
         this.initRowMarkData();
+    }
+
+    public ngAfterViewChecked(): void {
+        if (this.virtualScrollingEnabled) {
+            this.trySetRowHeightAndNotify();
+        }
     }
 
     public onRowSelectedChanged($event: boolean): void {
@@ -70,6 +82,8 @@ export class DataGridRowComponent implements OnInit {
         this.rowData.expanded = !this.rowData.expanded;
 
         this.onRowExpanded.emit(this.rowData);
+
+        this.changeDetector.markForCheck();
     }
 
     public onColumnsRowClicked(): void {
@@ -97,6 +111,22 @@ export class DataGridRowComponent implements OnInit {
                     rowMarkData.letter = rowMarkData.letter.charAt(0);
                 }
             }
+        }
+    }
+
+    private trySetRowHeightAndNotify(): void {
+        let currentHeight = this.element.nativeElement.clientHeight;
+
+        if (this.rowData.rowHeight !== currentHeight) {
+            let previousHeight = this.rowData.rowHeight;
+
+            this.rowData.rowHeight = currentHeight;
+
+            this.onRowHeightChanged.emit({
+                previousValue: previousHeight,
+                currentValue: this.element.nativeElement.clientHeight,
+                rowData: this.rowData
+            });
         }
     }
 }

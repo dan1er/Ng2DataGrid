@@ -1,94 +1,98 @@
 @import "../variables";
 
-.data-table-body-row {
-    box-shadow: @row-shadow;
+:host {
+    display: block;
 
-    &-columns {
-        display: flex;
-        background-color: @row-background;
-        margin-top: @row-spacing;
-        line-height: @row-line-height;
-        cursor: pointer;
-        position: relative;
+    .data-table-body-row {
+        box-shadow: @row-shadow;
 
-        .column {
-            user-select: none !important;
-            min-width: 30px;
-            overflow: hidden;
+        &-columns {
             display: flex;
-            align-items: center;
-            padding: 5px 0;
+            background-color: @row-background;
+            margin-top: @row-spacing;
+            line-height: @row-line-height;
+            cursor: pointer;
+            position: relative;
 
-            &-content {
-                max-height: @row-line-height * 2;
-                padding-left: 10px;
-                min-width: 20px !important;
-            }
+            .column {
+                user-select: none !important;
+                min-width: 30px;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                padding: 5px 0;
 
-            &.column-selection,
-            &.column-expand {
-                width: 35px;
-                text-align: center;
-            }
-
-            &.column-resizing {
-                position: relative;
-
-                &:after {
-                    content: " ";
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    height: 100%;
-                    border-right: 1px solid @divider-border-color;
-                }
-            }
-
-            &.column-expand {
-                font-family: @flaticon;
-                font-size: 13px;
-                font-weight: 900;
-                position: relative;
-                right: -12px;
-                color: @text-color;
-
-                &:hover {
-                    color: @base-color;
+                &-content {
+                    max-height: @row-line-height * 2;
+                    padding-left: 10px;
+                    min-width: 20px !important;
                 }
 
-                &:after {
-                    content: "\f100";
+                &.column-selection,
+                &.column-expand {
+                    width: 35px;
+                    text-align: center;
                 }
 
-                &.expanded {
+                &.column-resizing {
+                    position: relative;
+
                     &:after {
-                        content: "\f104";
+                        content: " ";
+                        position: absolute;
+                        right: 0;
+                        top: 0;
+                        height: 100%;
+                        border-right: 1px solid @divider-border-color;
+                    }
+                }
+
+                &.column-expand {
+                    font-family: @flaticon;
+                    font-size: 13px;
+                    font-weight: 900;
+                    position: relative;
+                    right: -12px;
+                    color: @text-color;
+
+                    &:hover {
+                        color: @base-color;
+                    }
+
+                    &:after {
+                        content: "\f100";
+                    }
+
+                    &.expanded {
+                        &:after {
+                            content: "\f104";
+                        }
                     }
                 }
             }
-        }
 
-        .column-marker {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 12px solid;
-            border-right-color: transparent !important;
-            border-bottom-color: transparent !important;
-            user-select: none;
+            .column-marker {
+                position: absolute;
+                width: 0;
+                height: 0;
+                border: 11px solid;
+                border-right-color: transparent !important;
+                border-bottom-color: transparent !important;
+                user-select: none;
 
-            & > span {
-                text-transform: capitalize;
-                color: @white;
-                position: relative;
-                top: -18px;
-                left: -10px;
-                font-size: 10px;
+                & > span {
+                    text-transform: capitalize;
+                    color: @white;
+                    position: relative;
+                    top: -18px;
+                    left: -10px;
+                    font-size: 10px;
+                }
             }
         }
-    }
 
-    &-expanded {
-        padding: 10px;
+        &-expanded {
+            padding: 10px;
+        }
     }
 }
