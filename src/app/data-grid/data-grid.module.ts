@@ -5,6 +5,7 @@ import {ReactiveFormsModule, FormsModule} from '@angular/forms';
 import {GridColumnComponent} from './data-grid-column/data-grid-column.component';
 import {DataGridRowComponent} from './data-grid-row/data-grid-row.component';
 import CheckboxComponent from './checkbox/checkbox.component';
+import SpinnerComponent from './spinner/spinner.component';
 
 @NgModule({
     imports: [
@@ -16,7 +17,8 @@ import CheckboxComponent from './checkbox/checkbox.component';
         DataGridComponent,
         GridColumnComponent,
         DataGridRowComponent,
-        CheckboxComponent
+        CheckboxComponent,
+        SpinnerComponent
     ],
     exports: [DataGridComponent, GridColumnComponent]
 })

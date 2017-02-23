@@ -12,6 +12,7 @@ import {GridColumnComponent, Column} from '../data-grid-column/data-grid-column.
 import {filter} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {random} from "lodash";
+import "rxjs/operator/debounceTime";
 
 type selectionMode = "single" | "multiple";
 
@@ -60,6 +61,7 @@ type selectionMode = "single" | "multiple";
                                        (onRowSelectionChanged)="onRowSelectionChanged($event)">
                         </data-grid-row>
                     </template>
+                    <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
                 </div>
                 <div *ngIf="false" class="data-table-footer">
                 </div>
@@ -94,6 +96,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     private columns: Column[];
     private currentPage: number = 0;
     private allSelected: boolean;
+    private isLoading: boolean;
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
@@ -101,6 +104,8 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     }
 
     public ngOnInit(): void {
+        this.isLoading = true;
+
         this.subscribeToBodyScrolling();
     }
 
@@ -247,16 +252,21 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             let bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
             fromEvent(bodyElement, "scroll")
+                .debounceTime(100)
                 .subscribe(() => {
-                    if (bodyElement.scrollTop + bodyElement.clientHeight == bodyElement.scrollHeight) {
-                        ++this.currentPage;
+                    if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
+                        this.ngZone.run(() => {
+                            ++this.currentPage;
 
-                        this.onLoadNextPage.emit({
-                            page: this.currentPage,
-                            from: this.currentPage * this.rowsPerPage,
-                            rowsPerPage: this.rowsPerPage,
-                            sortField: this.sortField,
-                            sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
+                            this.isLoading = true;
+
+                            this.onLoadNextPage.emit({
+                                page: this.currentPage,
+                                from: this.currentPage * this.rowsPerPage,
+                                rowsPerPage: this.rowsPerPage,
+                                sortField: this.sortField,
+                                sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
+                            });
                         });
                     }
                 });
@@ -268,9 +278,12 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             ? data.map((item: any) => <RowData>(
             {
                 identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
-                data: item
+                data: item,
+                selected: this.allSelected
             }))
             : [];
+
+        this.isLoading = false;
     }
 
     private markSelected(rows: any[]): void {
