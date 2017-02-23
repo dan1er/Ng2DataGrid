@@ -1,0 +1,80 @@
+<div class="content">
+    <app-data-grid [data]="data"
+                   identifierField="id"
+                   selectionMode="multiple"
+                   rowMarkField="rowMarkData"
+                   [expandTemplate]="expandTemplate"
+                   (onSelectionChanged)="onSelectionChanged($event)"
+                   (onLoadNextPage)="onLoadNextPage($event)">
+        <div>
+            <grid-column width="60px"
+                         resizable="false"
+                         [template]="columnTemplate">
+                <template #columnTemplate>
+                    <img src="http://lorempixel.com/50/50/">
+                    {{rowData}}
+                </template>
+            </grid-column>
+            <grid-column field="name"
+                         header="Name"
+                         width="200px"
+                         sortField="name">
+            </grid-column>
+            <grid-column field="email"
+                         header="Email"
+                         width="150px"
+                         sortField="person.email">
+            </grid-column>
+            <grid-column field="body"
+                         header="Body">
+            </grid-column>
+        </div>
+        <template #expandTemplate>
+
+            <p>This</p>
+            <p>is</p>
+            <p>a</p>
+            <p>Test</p>
+        </template>
+    </app-data-grid>
+
+    <br>
+
+    <pre>
+        SELECTED:
+        <p>
+            {{selectedRows|json}}
+        </p>
+    </pre>
+
+    <br>
+
+    <app-data-grid [data]="data"
+                   identifierField="id"
+                   selectionMode="single"
+                   [expandTemplate]="expandTemplate">
+        <div>
+            <grid-column field="name"
+                         header="Name"
+                         width="200px"
+                         sortField="name">
+            </grid-column>
+            <grid-column field="email"
+                         header="Email"
+                         width="150px"
+                         sortField="person.email">
+            </grid-column>
+            <grid-column field="body"
+                         header="Body">
+            </grid-column>
+        </div>
+        <template #expandTemplate
+                  let-data="rowData">
+            <p>This</p>
+            <p>is</p>
+            <p>a</p>
+            <p>Test</p>
+            <pre>{{data|json}}</pre>
+        </template>
+    </app-data-grid>
+</div>
