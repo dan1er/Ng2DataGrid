@@ -2,8 +2,8 @@ import {
     Component, Input, Output, EventEmitter, TemplateRef, OnInit, ElementRef, AfterContentChecked,
     ChangeDetectionStrategy, ChangeDetectorRef, AfterViewChecked
 } from '@angular/core';
-import { Column } from "../data-grid-column/data-grid-column.component";
-import { RowMarkData, RowData, RowHeightChangedEvent } from "../data-grid/data-grid.component";
+import {Column} from "../data-grid-column/data-grid-column.component";
+import {RowMarkData, RowData, RowHeightChangedEvent} from "../data-grid/data-grid.component";
 
 @Component({
     selector: 'data-grid-row',
@@ -115,7 +115,8 @@ export class DataGridRowComponent implements OnInit, AfterViewChecked {
     }
 
     private trySetRowHeightAndNotify(): void {
-        let currentHeight = this.element.nativeElement.clientHeight;
+        let style = window.getComputedStyle(this.element.nativeElement),
+            currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
 
         if (this.rowData.rowHeight !== currentHeight) {
             let previousHeight = this.rowData.rowHeight;

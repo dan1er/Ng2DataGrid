@@ -8,10 +8,10 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/switchMap';
-import { GridColumnComponent, Column } from '../data-grid-column/data-grid-column.component';
-import { filter } from "lodash";
-import { fromEvent } from "rxjs/observable/fromEvent";
-import { random } from "lodash";
+import {GridColumnComponent, Column} from '../data-grid-column/data-grid-column.component';
+import {filter} from "lodash";
+import {fromEvent} from "rxjs/observable/fromEvent";
+import {random} from "lodash";
 import "rxjs/operator/debounceTime";
 
 type selectionMode = "single" | "multiple";
@@ -51,18 +51,21 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-row [ngForOf]="virtualData" [ngForTrackBy]="trackByIdentifier">
-                        <data-grid-row [columns]="columns" 
-                                       [rowData]="row" 
-                                       [expandTemplate]="expandTemplate"
-                                       [showSelectionInput]="showSelectionInput"
-                                       [selectionMode]="selectionMode"
-                                       [rowMarkField]="rowMarkField"
-                                       [virtualScrollingEnabled]="true"
-                                       (onRowHeightChanged)="onRowHeightChanged()"
-                                       (onRowSelectionChanged)="onRowSelectionChanged($event)">
-                        </data-grid-row>
-                    </template>
+                    <div class="scroll-sizer"></div>
+                    <div class="data-table-body-data-container">
+                        <template ngFor let-row [ngForOf]="virtualData" [ngForTrackBy]="trackByIdentifier">
+                            <data-grid-row [columns]="columns" 
+                                           [rowData]="row" 
+                                           [expandTemplate]="expandTemplate"
+                                           [showSelectionInput]="showSelectionInput"
+                                           [selectionMode]="selectionMode"
+                                           [rowMarkField]="rowMarkField"
+                                           [virtualScrollingEnabled]="true"
+                                           (onRowHeightChanged)="onRowHeightChanged()"
+                                           (onRowSelectionChanged)="onRowSelectionChanged($event)">
+                            </data-grid-row>
+                        </template>
+                    </div>
                     <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
                 </div>
                 <div *ngIf="false" class="data-table-footer">
@@ -87,7 +90,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
     @ContentChildren(GridColumnComponent) public gridColumns: QueryList<GridColumnComponent>;
 
     public virtualData: RowData[];
-    public virtualRecordsNumber: number = 30;
+    public virtualRecordsNumber: number = 5;
     public scrollableValue: number = 0;
     private rowHeight: number = 35;
 
@@ -106,17 +109,18 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
     private isLoading: boolean;
 
     private bodyElement: HTMLDivElement;
+    private scrollSizer: HTMLDivElement;
 
-    constructor(
-        private element: ElementRef,
-        private changeDetector: ChangeDetectorRef,
-        private ngZone: NgZone) {
+    constructor(private element: ElementRef,
+                private changeDetector: ChangeDetectorRef,
+                private ngZone: NgZone) {
     }
 
     public ngOnInit(): void {
         this.isLoading = true;
 
         this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
+        this.scrollSizer = this.element.nativeElement.querySelector("div.scroll-sizer");
 
         this.subscribeToBodyScrolling();
     }
@@ -249,7 +253,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
             return { rowHeight: previousValue.rowHeight + currentValue.rowHeight };
         });
 
-        this.bodyElement.style.height = `${totalHeight.rowHeight}px`;
+        this.scrollSizer.style.height = `${totalHeight.rowHeight}px`;
     }
 
     private clearResizingData(): void {
@@ -283,6 +287,8 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
                              sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
                              });*/
                         });
+                    } else {
+
                     }
                 });
         });
@@ -291,12 +297,12 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
     private processData(data: any[]): void {
         this.innerData = data
             ? data.map((item: any) => <RowData>(
-                {
-                    identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
-                    data: item,
-                    selected: this.allSelected,
-                    rowHeight: this.rowHeight
-                }))
+            {
+                identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
+                data: item,
+                selected: this.allSelected,
+                rowHeight: this.rowHeight
+            }))
             :
             [];
 
@@ -321,10 +327,10 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     private setInitialBodyHeight(): void {
-        if (this.bodyElement) {
+        if (this.scrollSizer) {
             let totalHeight = this.innerData.length * this.rowHeight;
 
-            this.bodyElement.style.height = `${totalHeight}px`;
+            this.scrollSizer.style.height = `${totalHeight}px`;
         }
     }
 }
@@ -347,6 +353,8 @@ export interface RowData {
     expanded?: boolean;
     rowHeight?: number;
     data?: any;
+    firstDisplayed?: boolean;
+    lastDisplayed?: boolean;
 }
 
 export interface LoadNextPageEvent {
