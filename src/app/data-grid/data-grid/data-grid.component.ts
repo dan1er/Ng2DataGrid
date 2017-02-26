@@ -13,7 +13,7 @@ import {filter} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {random} from "lodash";
 import "rxjs/operator/debounceTime";
-import {pullAt, cloneDeep} from "lodash";
+import {cloneDeep} from "lodash";
 
 type selectionMode = "single" | "multiple";
 
