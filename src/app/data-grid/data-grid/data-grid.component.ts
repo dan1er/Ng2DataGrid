@@ -13,6 +13,7 @@ import {filter} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {random} from "lodash";
 import "rxjs/operator/debounceTime";
+import {cloneDeep} from "lodash";
 
 type selectionMode = "single" | "multiple";
 
@@ -51,14 +52,18 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-row [ngForOf]="innerData" [ngForTrackBy]="trackByIdentifier">
+                    <template ngFor let-row let-pos="index" [ngForOf]="innerData" [ngForTrackBy]="trackByIdentifier">
                         <data-grid-row [columns]="columns" 
                                        [rowData]="row" 
                                        [expandTemplate]="expandTemplate"
                                        [showSelectionInput]="showSelectionInput"
                                        [selectionMode]="selectionMode"
                                        [rowMarkField]="rowMarkField"
-                                       (onRowSelectionChanged)="onRowSelectionChanged($event)">
+                                       [allowRowsReorder]="allowRowsReorder"
+                                       [rowIndex]="pos"
+                                       [relocatedStyles]="relocatedStyles"
+                                       (onRowSelectionChanged)="onRowSelectionChanged($event)"
+                                       (onRowDragEnded)="onRowDragEnded($event)">
                         </data-grid-row>
                     </template>
                     <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
@@ -78,6 +83,8 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     @Input() public readonly showSelectionInput: boolean = true;
     @Input() public readonly expandTemplate: TemplateRef<any>;
     @Input() public readonly rowMarkField: string;
+    @Input() public readonly allowRowsReorder: string;
+    @Input() public readonly relocatedStyles: string[];
     @Output() public onAllSelected: EventEmitter<any> = new EventEmitter();
     @Output() public onSelectionChanged: EventEmitter<any[]> = new EventEmitter();
     @Output() public onSortChanged: EventEmitter<SortChangedEvent> = new EventEmitter();
@@ -100,7 +107,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
-                private ngZone: NgZone) {
+                private zone: NgZone) {
     }
 
     public ngOnInit(): void {
@@ -167,7 +174,39 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     }
 
     public trackByIdentifier(index: number, row: RowData): string {
+        if (!row) {
+            return;
+        }
         return row.identifier;
+    }
+
+    public onRowDragEnded($event: RowDragEndedEvent): void {
+        this.zone.runOutsideAngular(() => {
+            if ($event.nextIndex !== $event.currentIndex) {
+                let elementToMove = cloneDeep(this.innerData[$event.currentIndex]),
+                    i = $event.currentIndex;
+
+                elementToMove.relocated = true;
+
+                if ($event.nextIndex > $event.currentIndex) {
+                    while (i < $event.nextIndex) {
+                        let item = cloneDeep(this.innerData[i + 1]);
+                        this.innerData[i] = item;
+                        this.data[i] = item.data;
+                        i++;
+                    }
+                } else {
+                    while (i > $event.nextIndex) {
+                        let item = cloneDeep(this.innerData[i - 1]);
+                        this.innerData[i] = item;
+                        this.data[i] = item.data;
+                        i--;
+                    }
+                }
+                this.innerData[$event.nextIndex] = elementToMove;
+                this.data[$event.nextIndex] = elementToMove.data;
+            }
+        });
     }
 
     public onColumnHeaderClicked(column: Column): void {
@@ -248,14 +287,14 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     }
 
     private subscribeToBodyScrolling(): void {
-        this.ngZone.runOutsideAngular(() => {
+        this.zone.runOutsideAngular(() => {
             let bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
             fromEvent(bodyElement, "scroll")
                 .debounceTime(100)
                 .subscribe(() => {
                     if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
-                        this.ngZone.run(() => {
+                        this.zone.run(() => {
                             ++this.currentPage;
 
                             this.isLoading = true;
@@ -276,11 +315,11 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     private processData(data: any[]): void {
         this.innerData = data
             ? data.map((item: any) => <RowData>(
-            {
-                identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
-                data: item,
-                selected: this.allSelected
-            }))
+                {
+                    identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
+                    data: item,
+                    selected: this.allSelected
+                }))
             : [];
 
         this.isLoading = false;
@@ -317,6 +356,7 @@ export interface RowData {
     selected?: boolean;
     expanded?: boolean;
     data?: any;
+    relocated?: boolean;
 }
 
 export interface LoadNextPageEvent {
@@ -325,6 +365,11 @@ export interface LoadNextPageEvent {
     rowsPerPage: number;
     sortField?: string;
     sortDirection?: string;
+}
+
+export interface RowDragEndedEvent {
+    currentIndex: number;
+    nextIndex: number;
 }
 
 export class DomHelper {

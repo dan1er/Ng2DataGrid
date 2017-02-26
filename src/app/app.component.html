@@ -1,9 +1,13 @@
+<button (click)="allowReorderRows = !allowReorderRows">Toggle Allow Reorder!</button>
+
 <div class="content">
 	<app-data-grid [data]="data"
 				   [rowsPerPage]="10"
 				   identifierField="id"
 				   selectionMode="multiple"
 				   rowMarkField="rowMarkData"
+				   [relocatedStyles]="{backgroundColor: 'pink'}"
+				   [allowRowsReorder]="allowReorderRows"
 				   [expandTemplate]="expandTemplate"
 				   (onSelectionChanged)="onSelectionChanged($event)"
 				   (onLoadNextPage)="onLoadNextPage($event)">
