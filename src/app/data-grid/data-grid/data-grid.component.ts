@@ -15,7 +15,8 @@ import {
     OnChanges,
     SimpleChanges,
     ChangeDetectionStrategy,
-    AfterViewChecked
+    AfterViewChecked,
+    AfterContentChecked
 } from "@angular/core";
 import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/map";
@@ -64,7 +65,7 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-key let-pos="index" [ngForOf]="dataKeys">
+                    <template ngFor let-key let-pos="index" let-last="last" [ngForOf]="dataKeys">
                         <data-grid-row [columns]="visibleColumns" 
                                        [rowData]="innerData.get(key)" 
                                        [expandTemplate]="expandTemplate"
@@ -74,7 +75,7 @@ type selectionMode = "single" | "multiple";
                                        [allowRowsReorder]="allowRowsReorder"
                                        [rowIndex]="pos"
                                        [relocatedStyles]="relocatedStyles"
-                                       [initializeSelected]="allSelected"
+                                       [initializeSelected]="allSelected || innerData.get(key).selected"
                                        (onRowSelectionChanged)="onRowSelectionChanged($event)"
                                        (onRowDragEnded)="onRowDragEnded($event)">
                         </data-grid-row>
@@ -88,10 +89,11 @@ type selectionMode = "single" | "multiple";
     styleUrls: ["data-grid.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked {
+export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked, AfterContentChecked {
     @Input() public readonly identifierProperty: string;
     @Input() public data: any[];
     @Input() public selected: any[];
+    @Input() public totalRecords: number;
     @Input() public readonly rowsPerPage: number = 50;
     @Input() public readonly selectionMode: selectionMode = "single";
     @Input() public readonly showSelectionInput: boolean = true;
@@ -112,6 +114,8 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     public resizing: boolean;
     public resizedElement: HTMLElement;
     public resizedColumnIndex: string;
+
+    public rowsInitialized: boolean;
 
     public columns: Column[];
     public innerData: Map<string, RowData>;
@@ -146,7 +150,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
 
         if (changes["selected"]) {
-            this.markSelected(changes["selected"].currentValue);
+            this.markSelected();
         }
     }
 
@@ -165,6 +169,13 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
     }
 
+    public ngAfterContentChecked(): void {
+        if (!this.rowsInitialized) {
+            this.markSelected();
+            this.rowsInitialized = true;
+        }
+    }
+
     public get visibleColumns(): Column[] {
         return (this.columns || []).filter((column: Column) => column.visible);
     }
@@ -177,6 +188,10 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             }
         }
         return counter;
+    }
+
+    public get lastPageReached(): boolean {
+        return (this.currentPage + 1) * this.rowsPerPage >= this.totalRecords;
     }
 
     public onSelectAllChanged($event: boolean): void {
@@ -208,15 +223,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
         this.allSelected = this.data.length === this.selected.length;
 
-        if (this.allSelected) {
-            this.selectionService.emitSelectionChanged({
-                allSelected: true
-            });
-        } else {
-            this.selectionService.emitSelectionChanged({
-                selected: this.selected
-            });
-        }
+        this.markSelected();
 
         this.onSelectionChanged.emit(this.selected);
     }
@@ -340,17 +347,19 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
                 .subscribe(() => {
                     if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
                         this.zone.run(() => {
-                            ++this.currentPage;
+                            if (!this.lastPageReached) {
+                                ++this.currentPage;
 
-                            this.isLoading = true;
+                                this.isLoading = true;
 
-                            this.onLoadNextPage.emit({
-                                page: this.currentPage,
-                                from: this.currentPage * this.rowsPerPage,
-                                rowsPerPage: this.rowsPerPage,
-                                sortField: this.sortField,
-                                sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
-                            });
+                                this.onLoadNextPage.emit({
+                                    page: this.currentPage,
+                                    from: this.currentPage * this.rowsPerPage,
+                                    rowsPerPage: this.rowsPerPage,
+                                    sortField: this.sortField,
+                                    sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
+                                });
+                            }
                         });
                     }
                 });
@@ -392,17 +401,26 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.isLoading = false;
     }
 
-    private markSelected(rows: any[]): void {
-        this.innerData.forEach((row: RowData) => {
-            let found: boolean = false;
-            rows.forEach((selected: any) => {
-                if ((this.identifierProperty && (row[this.identifierProperty] === selected[this.identifierProperty])) ||
-                    (!this.identifierProperty && row === selected)) {
-                    found = true;
+    private markSelected(): void {
+        if (this.selected && Array.isArray(this.selected)) {
+            this.selected.forEach((item: any) => {
+                const identifier = `${item[this.identifierProperty]}`;
+                if (this.innerData.has(identifier)) {
+                    const row = this.innerData.get(identifier);
+                    row.selected = true;
                 }
             });
-            row.selected = found;
-        });
+
+            if (this.allSelected) {
+                this.selectionService.emitSelectionChanged({
+                    allSelected: true
+                });
+            } else {
+                this.selectionService.emitSelectionChanged({
+                    selected: this.selected
+                });
+            }
+        }
     }
 
     private regenerateInnerDataFromRowsData(data: RowData[]): void {

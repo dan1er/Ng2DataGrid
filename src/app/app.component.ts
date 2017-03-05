@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
     private dataSet: any[];
     public allowReorderRows: boolean = true;
     public emailVisible: boolean = true;
+    public initialSelected: any[];
 
     constructor(private http: Http) {
     }
@@ -39,7 +40,8 @@ export class AppComponent implements OnInit {
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.slice(0, 5).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.data = this.dataSet.slice(0, 10).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.initialSelected = [this.data[0], this.data[4]];
             })
             .subscribe();
     }

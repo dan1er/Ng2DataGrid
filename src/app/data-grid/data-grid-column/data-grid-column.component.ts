@@ -1,8 +1,9 @@
-import {Component, Input, TemplateRef} from "@angular/core";
+import {Component, Input, TemplateRef, ChangeDetectionStrategy} from "@angular/core";
 
 @Component({
     selector: "grid-column",
-    template: ``
+    template: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GridColumnComponent {
     @Input() public field: string;
