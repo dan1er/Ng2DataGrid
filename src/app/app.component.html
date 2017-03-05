@@ -1,9 +1,10 @@
 <button (click)="allowReorderRows = !allowReorderRows">Toggle Allow Reorder!</button>
+<button (click)="emailVisible = !emailVisible">Toggle Email Column!</button>
 
 <div class="content">
 	<app-data-grid [data]="data"
-				   [rowsPerPage]="10"
-				   identifierField="id"
+				   [rowsPerPage]="5"
+				   identifierProperty="id"
 				   selectionMode="multiple"
 				   rowMarkField="rowMarkData"
 				   [relocatedStyles]="{backgroundColor: 'pink'}"
@@ -16,7 +17,7 @@
 						 resizable="false"
 						 [template]="columnTemplate">
 				<template #columnTemplate>
-					<img src="http://lorempixel.com/50/50/">
+					<img src="http://fakeimg.pl/50x50/?text=Test">
 					{{rowData}}
 				</template>
 			</grid-column>
@@ -28,6 +29,7 @@
 			<grid-column field="email"
 						 header="Email"
 						 width="150px"
+                         [visible]="emailVisible"
 						 sortField="person.email">
 			</grid-column>
 			<grid-column field="body"
@@ -41,9 +43,9 @@
 			<p>Test</p>
 		</template>
 	</app-data-grid>
-	
+
 <!--	<app-data-grid [data]="data"
-				   identifierField="id"
+				   identifierProperty="id"
 				   selectionMode="single"
 				   [expandTemplate]="expandTemplate"
 				   (onSelectionChanged)="onSelectionChanged($event)"
