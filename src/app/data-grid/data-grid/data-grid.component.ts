@@ -1,37 +1,49 @@
 import {
-    Component, OnInit, Input, ContentChildren, QueryList,
-    AfterViewInit, AfterContentInit, ElementRef, TemplateRef,
-    ChangeDetectorRef, HostListener, EventEmitter, Output, NgZone, OnChanges, SimpleChanges
-} from '@angular/core';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/delay';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/switchMap';
-import {GridColumnComponent, Column} from '../data-grid-column/data-grid-column.component';
-import {filter} from "lodash";
+    Component,
+    OnInit,
+    Input,
+    ContentChildren,
+    QueryList,
+    AfterViewInit,
+    ElementRef,
+    TemplateRef,
+    ChangeDetectorRef,
+    HostListener,
+    EventEmitter,
+    Output,
+    NgZone,
+    OnChanges,
+    SimpleChanges,
+    ChangeDetectionStrategy,
+    AfterViewChecked
+} from "@angular/core";
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/delay";
+import "rxjs/add/operator/takeUntil";
+import "rxjs/add/operator/switchMap";
+import {GridColumnComponent, Column} from "../data-grid-column/data-grid-column.component";
+import {random, cloneDeep, isEqual} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
-import {random} from "lodash";
 import "rxjs/operator/debounceTime";
-import {cloneDeep} from "lodash";
+import {SelectionService} from "../data-grid.services";
 
 type selectionMode = "single" | "multiple";
 
 @Component({
-    selector: 'app-data-grid',
+    selector: "app-data-grid",
     template: `
             <div class="data-table">
                 <div class="data-table-header">
                     <div *ngIf="showSelectionInput" 
                          class="column column-selection">
                          <data-grid-checkbox *ngIf="selectionMode === 'multiple'"
-                                             [value]="allSelected"
                                              (onChanged)="onSelectAllChanged($event)">
                          </data-grid-checkbox>
                     </div>
                     <div class="column column_{{i}}"
                          [ngStyle]="{flex: !column.width ? 1: '', width: column.width}"
-                         *ngFor="let column of columns; let i = index; let isLast = last;"
+                         *ngFor="let column of visibleColumns; let i = index; let isLast = last;"
                          (click)="onColumnHeaderClicked(column)">
                         <div class="column-content">{{column.header}}</div>
                         <template [ngIf]="(column.sortField && sorting && column.sortField === sortField) === true">
@@ -52,9 +64,9 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-row let-pos="index" [ngForOf]="innerData" [ngForTrackBy]="trackByIdentifier">
-                        <data-grid-row [columns]="columns" 
-                                       [rowData]="row" 
+                    <template ngFor let-key let-pos="index" [ngForOf]="dataKeys">
+                        <data-grid-row [columns]="visibleColumns" 
+                                       [rowData]="innerData.get(key)" 
                                        [expandTemplate]="expandTemplate"
                                        [showSelectionInput]="showSelectionInput"
                                        [selectionMode]="selectionMode"
@@ -62,6 +74,7 @@ type selectionMode = "single" | "multiple";
                                        [allowRowsReorder]="allowRowsReorder"
                                        [rowIndex]="pos"
                                        [relocatedStyles]="relocatedStyles"
+                                       [initializeSelected]="allSelected"
                                        (onRowSelectionChanged)="onRowSelectionChanged($event)"
                                        (onRowDragEnded)="onRowDragEnded($event)">
                         </data-grid-row>
@@ -72,11 +85,12 @@ type selectionMode = "single" | "multiple";
                 </div>
             </div>
     `,
-    styleUrls: ['data-grid.component.less']
+    styleUrls: ["data-grid.component.less"],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterContentInit {
-    @Input() public readonly identifierField: string;
-    @Input() public readonly data: any[];
+export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked {
+    @Input() public readonly identifierProperty: string;
+    @Input() public data: any[];
     @Input() public selected: any[];
     @Input() public readonly rowsPerPage: number = 50;
     @Input() public readonly selectionMode: selectionMode = "single";
@@ -99,19 +113,29 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     public resizedElement: HTMLElement;
     public resizedColumnIndex: string;
 
-    private innerData: RowData[];
-    private columns: Column[];
+    public columns: Column[];
+    public innerData: Map<string, RowData>;
+    public isLoading: boolean;
+    public allSelected: boolean;
     private currentPage: number = 0;
-    private allSelected: boolean;
-    private isLoading: boolean;
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
-                private zone: NgZone) {
+                private zone: NgZone,
+                private selectionService: SelectionService) {
     }
 
     public ngOnInit(): void {
         this.isLoading = true;
+        this.innerData = new Map();
+        this.selected = [];
+        this.data = this.data || [];
+
+        if (!this.identifierProperty) {
+            throw new Error("You have to set an identifier property");
+        }
+
+        this.selectionService.identifierProperty = this.identifierProperty;
 
         this.subscribeToBodyScrolling();
     }
@@ -130,81 +154,102 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.initializeColumns();
     }
 
-    public ngAfterContentInit(): void {
+    public ngAfterViewChecked(): void {
+        const columns = this.gridColumns.map((component: GridColumnComponent) => new Column(component));
+
+        if (!isEqual(this.columns, columns)) {
+            setTimeout(() => {
+                this.initializeColumns();
+                this.changeDetector.markForCheck();
+            });
+        }
+    }
+
+    public get visibleColumns(): Column[] {
+        return (this.columns || []).filter((column: Column) => column.visible);
     }
 
     public get selectedCount(): number {
-        return filter(this.innerData, <any>{ selected: true }).length;
-    }
-
-    public get allRowsSelected(): boolean {
-        return !filter(this.innerData, (row: any) => !row.selected).length;
-    }
-
-    public get selectedRows(): any[] {
-        return filter(this.innerData, <any>{ selected: true }).map((row: RowData) => row.data);
+        let counter = 0;
+        for (const row of this.innerData.values()) {
+            if (row.selected) {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     public onSelectAllChanged($event: boolean): void {
+        this.selected = $event ? this.data : [];
+
         this.allSelected = $event;
 
-        this.innerData.forEach((item: RowData) => item.selected = this.allSelected);
-
-        this.selected = this.selectedRows;
+        this.selectionService.emitSelectionChanged({
+            allSelected: $event
+        });
 
         this.onAllSelected.emit();
     }
 
     public onRowSelectionChanged(rowData: RowData): void {
         if (this.selectionMode === "single") {
-            this.innerData.forEach((item: any) => {
-                if (item.identifier !== rowData.identifier) {
-                    item.selected = false;
-                }
+            this.selected = [];
+
+            if (rowData.selected) {
+                this.selected.push(rowData.data);
+            }
+        } else {
+            if (rowData.selected) {
+                this.selected.push(rowData.data);
+            } else {
+                this.selected = this.selected.filter((row: any) => `${row[this.identifierProperty]}` !== rowData.identifier);
+            }
+        }
+
+        this.allSelected = this.data.length === this.selected.length;
+
+        if (this.allSelected) {
+            this.selectionService.emitSelectionChanged({
+                allSelected: true
             });
         } else {
-            this.allSelected = this.allRowsSelected;
+            this.selectionService.emitSelectionChanged({
+                selected: this.selected
+            });
         }
 
-        let selected = this.selectedRows;
-
-        this.onSelectionChanged.emit(selected);
-
-        this.selected = selected;
-    }
-
-    public trackByIdentifier(index: number, row: RowData): string {
-        if (!row) {
-            return;
-        }
-        return row.identifier;
+        this.onSelectionChanged.emit(this.selected);
     }
 
     public onRowDragEnded($event: RowDragEndedEvent): void {
         this.zone.runOutsideAngular(() => {
+            const data: RowData[] = Array.from(this.innerData.values());
+
             if ($event.nextIndex !== $event.currentIndex) {
-                let elementToMove = cloneDeep(this.innerData[$event.currentIndex]),
-                    i = $event.currentIndex;
+                const elementToMove = cloneDeep(data[$event.currentIndex]);
+                let i = $event.currentIndex;
 
                 elementToMove.relocated = true;
 
                 if ($event.nextIndex > $event.currentIndex) {
                     while (i < $event.nextIndex) {
-                        let item = cloneDeep(this.innerData[i + 1]);
-                        this.innerData[i] = item;
+                        const item = cloneDeep(data[i + 1]);
+                        data[i] = item;
                         this.data[i] = item.data;
                         i++;
                     }
                 } else {
                     while (i > $event.nextIndex) {
-                        let item = cloneDeep(this.innerData[i - 1]);
-                        this.innerData[i] = item;
+                        const item = cloneDeep(data[i - 1]);
+                        data[i] = item;
                         this.data[i] = item.data;
                         i--;
                     }
                 }
-                this.innerData[$event.nextIndex] = elementToMove;
+                data[$event.nextIndex] = elementToMove;
                 this.data[$event.nextIndex] = elementToMove.data;
+
+                this.regenerateInnerDataFromRowsData(data);
             }
         });
     }
@@ -225,14 +270,8 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
     }
 
-    private initializeColumns(): void {
-        this.columns = this.gridColumns.map((component: GridColumnComponent) => new Column(component));
-
-        this.changeDetector.detectChanges();
-    }
-
-    private onResize($event: MouseEvent): void {
-        let columnIndex = (<HTMLDivElement>$event.currentTarget).getAttribute("column_index");
+    public onResize($event: MouseEvent): void {
+        const columnIndex = (<HTMLDivElement>$event.currentTarget).getAttribute("column_index");
 
         DomHelper.addClassToChildren(
             this.element.nativeElement,
@@ -245,15 +284,21 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.resizedColumnIndex = columnIndex;
     }
 
+    private initializeColumns(): void {
+        this.zone.run(() => {
+            this.columns = this.gridColumns.map((component: GridColumnComponent) => new Column(component));
+        });
+    }
+
     @HostListener("mousemove", ["$event"])
     public onDocumentMouseMoved($event: MouseEvent): void {
         if (this.resizing) {
             if ($event.buttons) {
-                let offset = DomHelper.getElementOffset(this.resizedElement);
+                const offset = DomHelper.getElementOffset(this.resizedElement);
                 if ($event.clientX >= offset.left + 20) {
-                    let width = $event.clientX - offset.left;
+                    const width = $event.clientX - offset.left;
 
-                    let styles = {
+                    const styles = {
                         flex: "",
                         width: `${width}px`
                     };
@@ -288,7 +333,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
     private subscribeToBodyScrolling(): void {
         this.zone.runOutsideAngular(() => {
-            let bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
+            const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
             fromEvent(bodyElement, "scroll")
                 .debounceTime(100)
@@ -312,15 +357,37 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         });
     }
 
+    public get dataKeys(): IterableIterator<string> {
+        return this.innerData.keys();
+    }
+
     private processData(data: any[]): void {
-        this.innerData = data
-            ? data.map((item: any) => <RowData>(
-                {
-                    identifier: this.identifierField ? item[this.identifierField] : `item_${random(5000, 1000000)}`,
-                    data: item,
-                    selected: this.allSelected
-                }))
-            : [];
+        if (this.allSelected) {
+            this.selected = data;
+        }
+
+        const newMap: Map<string, RowData> = new Map();
+
+        (this.data || []).forEach((item: any) => {
+            const itemIdentifier = `${item[this.identifierProperty]}`;
+
+            if (this.innerData.has(itemIdentifier)) {
+                const el = this.innerData.get(itemIdentifier);
+                el.data = item;
+                newMap.set(itemIdentifier, el);
+            } else {
+                const identifier = this.identifierProperty ? itemIdentifier : `item_${random(5000, 1000000)}`;
+                newMap.set(
+                    identifier,
+                    {
+                        selected: this.allSelected,
+                        identifier: identifier,
+                        data: item
+                    });
+            }
+        });
+
+        this.innerData = newMap;
 
         this.isLoading = false;
     }
@@ -329,12 +396,22 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.innerData.forEach((row: RowData) => {
             let found: boolean = false;
             rows.forEach((selected: any) => {
-                if ((this.identifierField && (row[this.identifierField] === selected[this.identifierField])) ||
-                    (!this.identifierField && row === selected)) {
+                if ((this.identifierProperty && (row[this.identifierProperty] === selected[this.identifierProperty])) ||
+                    (!this.identifierProperty && row === selected)) {
                     found = true;
                 }
             });
             row.selected = found;
+        });
+    }
+
+    private regenerateInnerDataFromRowsData(data: RowData[]): void {
+        this.zone.run(() => {
+            const map: Map<string, RowData> = new Map();
+
+            (data || []).forEach((row: RowData) => map.set(row.identifier, row));
+
+            this.innerData = map;
         });
     }
 }
@@ -348,7 +425,7 @@ export type sortDirection = "ascending" | "descending";
 
 export interface SortChangedEvent {
     sortField: string;
-    sortDirection: sortDirection
+    sortDirection: sortDirection;
 }
 
 export interface RowData {
@@ -379,16 +456,16 @@ export class DomHelper {
     }
 
     static addClassToChild(element: Element, selector: string, ...cssClass: string[]): Element {
-        let child: Element = element.querySelector(selector);
+        const child: Element = element.querySelector(selector);
         element.classList.add(...cssClass);
         return child;
     }
 
     static addClassToChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
-        let elements = element.querySelectorAll(selector);
+        const elements = element.querySelectorAll(selector);
 
         if (elements) {
-            (<any>elements).forEach((element: Element) => element.classList.add("column-resizing"));
+            (<any>elements).forEach((el: Element) => el.classList.add("column-resizing"));
         }
 
         return elements;
@@ -400,23 +477,23 @@ export class DomHelper {
     }
 
     static removeClassFromChild(element: Element, selector: string, ...cssClass: string[]): Element {
-        let child: Element = element.querySelector(selector);
+        const child: Element = element.querySelector(selector);
         element.classList.remove(...cssClass);
         return child;
     }
 
     static removeClassFromChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
-        let elements = element.querySelectorAll(selector);
+        const elements = element.querySelectorAll(selector);
 
         if (elements) {
-            (<any>elements).forEach((element: Element) => element.classList.remove("column-resizing"));
+            (<any>elements).forEach((el: Element) => el.classList.remove("column-resizing"));
         }
 
         return elements;
     }
 
-    static getElementOffset(element: HTMLElement): { top: number, left: number } {
-        var top = 0, left = 0;
+    static getElementOffset(element: HTMLElement): {top: number, left: number} {
+        let top = 0, left = 0;
         do {
             top += element.offsetTop || 0;
             left += element.offsetLeft || 0;
@@ -436,10 +513,10 @@ export class DomHelper {
     }
 
     static setChildrenStyle(element: HTMLElement, selector: string, styles: any): NodeListOf<HTMLElement> {
-        let elements: any = element.querySelectorAll(selector);
+        const elements: any = element.querySelectorAll(selector);
 
         if (elements) {
-            (<any>elements).forEach((element: HTMLElement) => Object.assign(element.style, styles));
+            (<any>elements).forEach((el: HTMLElement) => Object.assign(el.style, styles));
         }
 
         return elements;
