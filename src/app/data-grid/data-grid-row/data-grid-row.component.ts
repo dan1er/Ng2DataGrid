@@ -1,13 +1,22 @@
 import {
-    Component, Input, Output, EventEmitter, TemplateRef, OnInit, ElementRef, NgZone, OnChanges, SimpleChanges
-} from '@angular/core';
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    TemplateRef,
+    OnInit,
+    ElementRef,
+    NgZone,
+    OnChanges,
+    SimpleChanges
+} from "@angular/core";
 import {Column} from "../data-grid-column/data-grid-column.component";
 import {RowMarkData, RowData, RowDragEndedEvent} from "../data-grid/data-grid.component";
-import {fromEvent} from 'rxjs/observable/fromEvent';
-import {Subscription} from 'rxjs';
+import {fromEvent} from "rxjs/observable/fromEvent";
+import {Subscription} from "rxjs";
 
 @Component({
-    selector: 'data-grid-row',
+    selector: "data-grid-row",
     template: `
       <div class="data-table-body-row" [draggable]="allowRowsReorder">
           <div class="data-table-body-row-columns" [ngStyle]="rowData.relocated && relocatedStyles" (click)="onColumnsRowClicked()">
@@ -18,8 +27,9 @@ import {Subscription} from 'rxjs';
               </template>
               <div *ngIf="showSelectionInput" 
                    class="column column-selection">
-                   <data-grid-checkbox [value]="rowData.selected"
-                                       [displayAsRadio]="displayAsRadio"
+                   <data-grid-checkbox [displayAsRadio]="displayAsRadio"
+                                       [identifierProperty]="rowData.identifier"
+                                       [initializeSelected]="initializeSelected"
                                        (onChanged)="onRowSelectedChanged($event)">
                    </data-grid-checkbox>
               </div>
@@ -42,18 +52,19 @@ import {Subscription} from 'rxjs';
           </div>
       </div>
   `,
-    styleUrls: ['./data-grid-row.component.less']
+    styleUrls: ["./data-grid-row.component.less"]
 })
 export class DataGridRowComponent implements OnInit, OnChanges {
     @Input() public readonly columns: Column[];
     @Input() public rowData: RowData;
-    @Input() public readonly rowIndex: number;
     @Input() public readonly showSelectionInput: boolean;
     @Input() public readonly selectionMode: string;
     @Input() public readonly expandTemplate: TemplateRef<any>;
     @Input() public readonly rowMarkField: string;
     @Input() public readonly allowRowsReorder: string;
     @Input() public readonly relocatedStyles: string[];
+    @Input() public initializeSelected: boolean;
+    @Input() public rowIndex: number;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public onRowExpanded: EventEmitter<any> = new EventEmitter();
     @Output() public onRowDragEnded: EventEmitter<RowDragEndedEvent> = new EventEmitter();
@@ -98,7 +109,7 @@ export class DataGridRowComponent implements OnInit, OnChanges {
     }
 
     public get displayAsRadio(): boolean {
-        return this.selectionMode === 'single';
+        return this.selectionMode === "single";
     }
 
     public toggleExpanded(): void {
@@ -121,7 +132,7 @@ export class DataGridRowComponent implements OnInit, OnChanges {
 
     private initRowMarkData(): void {
         if (this.rowMarkField && this.rowData.data[this.rowMarkField]) {
-            let rowMarkData: RowMarkData = this.rowData.data[this.rowMarkField];
+            const rowMarkData: RowMarkData = this.rowData.data[this.rowMarkField];
 
             if (!rowMarkData.color) {
                 rowMarkData.color = "#98db53";
@@ -187,8 +198,8 @@ export class DataGridRowComponent implements OnInit, OnChanges {
             .subscribe(($event: DragEvent) => {
                 $event.preventDefault();
 
-                let index = $event.dataTransfer.getData("index");
-                this.onRowDragEnded.emit({ currentIndex: +index, nextIndex: this.rowIndex });
+                const index = $event.dataTransfer.getData("index");
+                this.onRowDragEnded.emit({currentIndex: +index, nextIndex: this.rowIndex});
 
                 this.element.classList.remove("row-dragging-over");
             });

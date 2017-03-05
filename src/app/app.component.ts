@@ -1,23 +1,25 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit} from "@angular/core";
 import {LoadNextPageEvent} from "./data-grid/data-grid/data-grid.component";
 import {Http, Response} from "@angular/http";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['app.component.less']
+    selector: "app-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["app.component.less"]
 })
 export class AppComponent implements OnInit {
     public data: any;
     public selectedRows: any[];
     private dataSet: any[];
     public allowReorderRows: boolean = true;
+    public emailVisible: boolean = true;
 
     constructor(private http: Http) {
     }
 
     public onLoadNextPage(data: LoadNextPageEvent): void {
-        let nextPageData = this.dataSet.slice(data.from, data.from + data.rowsPerPage).map((i: any) => Object.assign(i, { rowMarkData: { letter: i.name } }));
+        const nextPageData = this.dataSet.slice(data.from, data.from + data.rowsPerPage)
+            .map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
 
         setTimeout(() => {
             this.data = [...this.data, ...nextPageData];
@@ -37,7 +39,7 @@ export class AppComponent implements OnInit {
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.slice(0, 5).map((i: any) => Object.assign(i, { rowMarkData: { letter: i.name } }));
+                this.data = this.dataSet.slice(0, 5).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
             })
             .subscribe();
     }
