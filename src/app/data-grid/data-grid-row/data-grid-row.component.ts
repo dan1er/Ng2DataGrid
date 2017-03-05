@@ -8,7 +8,8 @@ import {
     ElementRef,
     NgZone,
     OnChanges,
-    SimpleChanges
+    SimpleChanges,
+    ChangeDetectionStrategy
 } from "@angular/core";
 import {Column} from "../data-grid-column/data-grid-column.component";
 import {RowMarkData, RowData, RowDragEndedEvent} from "../data-grid/data-grid.component";
@@ -52,7 +53,8 @@ import {Subscription} from "rxjs";
           </div>
       </div>
   `,
-    styleUrls: ["./data-grid-row.component.less"]
+    styleUrls: ["./data-grid-row.component.less"],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataGridRowComponent implements OnInit, OnChanges {
     @Input() public readonly columns: Column[];

@@ -2,76 +2,78 @@
 <button (click)="emailVisible = !emailVisible">Toggle Email Column!</button>
 
 <div class="content">
-	<app-data-grid [data]="data"
-				   [rowsPerPage]="5"
-				   identifierProperty="id"
-				   selectionMode="multiple"
-				   rowMarkField="rowMarkData"
-				   [relocatedStyles]="{backgroundColor: 'pink'}"
-				   [allowRowsReorder]="allowReorderRows"
-				   [expandTemplate]="expandTemplate"
-				   (onSelectionChanged)="onSelectionChanged($event)"
-				   (onLoadNextPage)="onLoadNextPage($event)">
-		<div>
-			<grid-column width="60px"
-						 resizable="false"
-						 [template]="columnTemplate">
-				<template #columnTemplate>
-					<img src="http://fakeimg.pl/50x50/?text=Test">
-					{{rowData}}
-				</template>
-			</grid-column>
-			<grid-column field="name"
-						 header="Name"
-						 width="200px"
-						 sortField="name">
-			</grid-column>
-			<grid-column field="email"
-						 header="Email"
-						 width="150px"
+    <app-data-grid [data]="data"
+                   [rowsPerPage]="10"
+                   [totalRecords]="50"
+                   identifierProperty="id"
+                   selectionMode="multiple"
+                   rowMarkField="rowMarkData"
+                   [selected]="initialSelected"
+                   [relocatedStyles]="{backgroundColor: 'pink'}"
+                   [allowRowsReorder]="allowReorderRows"
+                   [expandTemplate]="expandTemplate"
+                   (onSelectionChanged)="onSelectionChanged($event)"
+                   (onLoadNextPage)="onLoadNextPage($event)">
+        <div>
+            <grid-column width="60px"
+                         resizable="false"
+                         [template]="columnTemplate">
+                <template #columnTemplate>
+                    <img src="http://fakeimg.pl/50x50/?text=Test">
+                    {{rowData}}
+                </template>
+            </grid-column>
+            <grid-column field="name"
+                         header="Name"
+                         width="200px"
+                         sortField="name">
+            </grid-column>
+            <grid-column field="email"
+                         header="Email"
+                         width="150px"
                          [visible]="emailVisible"
-						 sortField="person.email">
-			</grid-column>
-			<grid-column field="body"
-						 header="Body">
-			</grid-column>
-		</div>
-		<template #expandTemplate>
-			<p>This</p>
-			<p>is</p>
-			<p>a</p>
-			<p>Test</p>
-		</template>
-	</app-data-grid>
+                         sortField="person.email">
+            </grid-column>
+            <grid-column field="body"
+                         header="Body">
+            </grid-column>
+        </div>
+        <template #expandTemplate>
+            <p>This</p>
+            <p>is</p>
+            <p>a</p>
+            <p>Test</p>
+        </template>
+    </app-data-grid>
 
-<!--	<app-data-grid [data]="data"
-				   identifierProperty="id"
-				   selectionMode="single"
-				   [expandTemplate]="expandTemplate"
-				   (onSelectionChanged)="onSelectionChanged($event)"
-				   (onLoadNextPage)="onLoadNextPage($event)">
-		<div>
-			<grid-column field="name"
-						 header="Name"
-						 width="200px"
-						 sortField="name">
-			</grid-column>
-			<grid-column field="email"
-						 header="Email"
-						 width="150px"
-						 sortField="person.email">
-			</grid-column>
-			<grid-column field="body"
-						 header="Body">
-			</grid-column>
-		</div>
-		<template #expandTemplate
-				  let-data="rowData">
-			<p>This</p>
-			<p>is</p>
-			<p>a</p>
-			<p>Test</p>
-			<pre>{{data|json}}</pre>
-		</template>
-	</app-data-grid>-->
+    <!--	<app-data-grid [data]="data"
+                       identifierProperty="id"
+                       selectionMode="single"
+                       [expandTemplate]="expandTemplate"
+                       (onSelectionChanged)="onSelectionChanged($event)"
+                       (onLoadNextPage)="onLoadNextPage($event)">
+            <div>
+                <grid-column field="name"
+                             header="Name"
+                             width="200px"
+                             sortField="name">
+                </grid-column>
+                <grid-column field="email"
+                             header="Email"
+                             width="150px"
+                             sortField="person.email">
+                </grid-column>
+                <grid-column field="body"
+                             header="Body">
+                </grid-column>
+            </div>
+            <template #expandTemplate
+                      let-data="rowData">
+                <p>This</p>
+                <p>is</p>
+                <p>a</p>
+                <p>Test</p>
+                <pre>{{data|json}}</pre>
+            </template>
+        </app-data-grid>-->
 </div>
