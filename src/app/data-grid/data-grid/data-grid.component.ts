@@ -65,21 +65,26 @@ type selectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <template ngFor let-key let-pos="index" let-last="last" [ngForOf]="dataKeys">
-                        <data-grid-row [columns]="visibleColumns" 
-                                       [rowData]="innerData.get(key)" 
-                                       [expandTemplate]="expandTemplate"
-                                       [showSelectionInput]="showSelectionInput"
-                                       [selectionMode]="selectionMode"
-                                       [rowMarkField]="rowMarkField"
-                                       [allowRowsReorder]="allowRowsReorder"
-                                       [rowIndex]="pos"
-                                       [relocatedStyles]="relocatedStyles"
-                                       [initializeSelected]="allSelected || innerData.get(key).selected"
-                                       (onRowSelectionChanged)="onRowSelectionChanged($event)"
-                                       (onRowDragEnded)="onRowDragEnded($event)">
-                        </data-grid-row>
-                    </template>
+                    <div class="scroller"></div>
+                    <div class="data-table-body-data-container">
+                        <template ngFor let-key let-pos="index" let-last="last" [ngForOf]="displayData">
+                            <data-grid-row [columns]="visibleColumns" 
+                                           [rowData]="innerData.get(key)" 
+                                           [expandTemplate]="expandTemplate"
+                                           [showSelectionInput]="showSelectionInput"
+                                           [selectionMode]="selectionMode"
+                                           [rowMarkField]="rowMarkField"
+                                           [allowRowsReorder]="allowRowsReorder"
+                                           [rowIndex]="pos"
+                                           [relocatedStyles]="relocatedStyles"
+                                           [enableVirtualScroll]="true"
+                                           [initializeSelected]="allSelected || innerData.get(key).selected"
+                                           (onRowSelectionChanged)="onRowSelectionChanged($event)"
+                                           (onRowDragEnded)="onRowDragEnded($event)"
+                                           (onRowHeightChanged)="onRowHeightChanged($event)">
+                            </data-grid-row>
+                        </template>
+                    </div>
                     <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
                 </div>
                 <div *ngIf="false" class="data-table-footer">
@@ -123,6 +128,17 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     public allSelected: boolean;
     private currentPage: number = 0;
 
+
+    private identifiersLookup: string[];
+    private bodyElement: HTMLDivElement;
+    private scrollSizer: HTMLDivElement;
+    private scrollContainer: HTMLDivElement;
+    private scrollerHeight: number = 0;
+    private scrollerInitialized: boolean;
+    private currentPosition: number;
+    private displayData: string[];
+    private scrolledItemsHeight: number;
+
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
                 private zone: NgZone,
@@ -134,12 +150,19 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.innerData = new Map();
         this.selected = [];
         this.data = this.data || [];
+        this.identifiersLookup = [];
+        this.currentPosition = 0;
+        this.scrolledItemsHeight = 0;
 
         if (!this.identifierProperty) {
             throw new Error("You have to set an identifier property");
         }
 
         this.selectionService.identifierProperty = this.identifierProperty;
+
+        this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
+        this.scrollContainer = this.element.nativeElement.querySelector("div.data-table-body-data-container");
+        this.scrollSizer = this.element.nativeElement.querySelector("div.scroller");
 
         this.subscribeToBodyScrolling();
     }
@@ -176,8 +199,25 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
     }
 
+    public onRowHeightChanged($event: RowHeightChangedEvent): void {
+        if ($event) {
+            if (!this.scrollerInitialized) {
+                this.scrollerHeight = $event.currentValue * (this.totalRecords || this.data.length);
+                this.scrollerInitialized = true;
+            }
+
+            this.scrollerHeight -= $event.previousValue;
+            this.scrollerHeight += $event.currentValue;
+            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
+        }
+    }
+
     public get visibleColumns(): Column[] {
         return (this.columns || []).filter((column: Column) => column.visible);
+    }
+
+    public setDisplayData(from: number = 0, take: number = 5): void {
+        this.displayData = this.identifiersLookup.slice(from, from + take);
     }
 
     public get selectedCount(): number {
@@ -346,21 +386,9 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
                 .debounceTime(100)
                 .subscribe(() => {
                     if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
-                        this.zone.run(() => {
-                            if (!this.lastPageReached) {
-                                ++this.currentPage;
-
-                                this.isLoading = true;
-
-                                this.onLoadNextPage.emit({
-                                    page: this.currentPage,
-                                    from: this.currentPage * this.rowsPerPage,
-                                    rowsPerPage: this.rowsPerPage,
-                                    sortField: this.sortField,
-                                    sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
-                                });
-                            }
-                        });
+                        this.tryNotifyLoadPage();
+                    } else {
+                        this.processScroll();
                     }
                 });
         });
@@ -376,6 +404,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
 
         const newMap: Map<string, RowData> = new Map();
+        this.identifiersLookup = [];
 
         (this.data || []).forEach((item: any) => {
             const itemIdentifier = `${item[this.identifierProperty]}`;
@@ -394,11 +423,15 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
                         data: item
                     });
             }
+
+            this.identifiersLookup.push(itemIdentifier);
         });
 
         this.innerData = newMap;
 
         this.isLoading = false;
+
+        this.setDisplayData(this.currentPosition);
     }
 
     private markSelected(): void {
@@ -432,6 +465,45 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             this.innerData = map;
         });
     }
+
+    private tryNotifyLoadPage(): void {
+        this.zone.run(() => {
+            if (!this.lastPageReached) {
+                ++this.currentPage;
+
+                this.isLoading = true;
+
+                this.onLoadNextPage.emit({
+                    page: this.currentPage,
+                    from: this.currentPage * this.rowsPerPage,
+                    rowsPerPage: this.rowsPerPage,
+                    sortField: this.sortField,
+                    sortDirection: this.sortField && (this.sortingAscending ? "ascending" : "descending")
+                });
+            }
+        });
+    }
+
+    private processScroll(): void {
+        const scrollTop = this.bodyElement.scrollTop,
+            currentItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition]).rowHeight;
+
+        if (scrollTop > (this.scrolledItemsHeight + currentItemHeight)) {
+            const rect = this.scrollContainer.getBoundingClientRect();
+
+            this.scrollContainer.style.top = `${scrollTop - rect.top}px`;
+
+            this.scrolledItemsHeight += currentItemHeight;
+            this.setDisplayData(++this.currentPosition);
+        } else if (this.scrolledItemsHeight > scrollTop + currentItemHeight) {
+            const previousItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition - 1]).rowHeight;
+
+            this.scrollContainer.style.top = `${scrollTop}px`;
+
+            this.setDisplayData(--this.currentPosition);
+            this.scrolledItemsHeight -= previousItemHeight;
+        }
+    }
 }
 
 export interface RowMarkData {
@@ -452,6 +524,7 @@ export interface RowData {
     expanded?: boolean;
     data?: any;
     relocated?: boolean;
+    rowHeight?: number;
 }
 
 export interface LoadNextPageEvent {
@@ -465,6 +538,12 @@ export interface LoadNextPageEvent {
 export interface RowDragEndedEvent {
     currentIndex: number;
     nextIndex: number;
+}
+
+export interface RowHeightChangedEvent {
+    previousValue: number;
+    currentValue: number;
+    rowData: RowData;
 }
 
 export class DomHelper {

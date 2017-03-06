@@ -9,10 +9,11 @@ import {
     NgZone,
     OnChanges,
     SimpleChanges,
-    ChangeDetectionStrategy
+    ChangeDetectionStrategy,
+    AfterViewInit
 } from "@angular/core";
 import {Column} from "../data-grid-column/data-grid-column.component";
-import {RowMarkData, RowData, RowDragEndedEvent} from "../data-grid/data-grid.component";
+import {RowMarkData, RowData, RowDragEndedEvent, RowHeightChangedEvent} from "../data-grid/data-grid.component";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {Subscription} from "rxjs";
 
@@ -56,7 +57,7 @@ import {Subscription} from "rxjs";
     styleUrls: ["./data-grid-row.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridRowComponent implements OnInit, OnChanges {
+export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly columns: Column[];
     @Input() public rowData: RowData;
     @Input() public readonly showSelectionInput: boolean;
@@ -67,9 +68,10 @@ export class DataGridRowComponent implements OnInit, OnChanges {
     @Input() public readonly relocatedStyles: string[];
     @Input() public initializeSelected: boolean;
     @Input() public rowIndex: number;
+    @Input() public enableVirtualScroll: boolean;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
-    @Output() public onRowExpanded: EventEmitter<any> = new EventEmitter();
     @Output() public onRowDragEnded: EventEmitter<RowDragEndedEvent> = new EventEmitter();
+    @Output() public onRowHeightChanged: EventEmitter<RowHeightChangedEvent> = new EventEmitter();
 
     private element: HTMLDivElement;
     private draggingSubscribersInitialized: boolean;
@@ -104,6 +106,12 @@ export class DataGridRowComponent implements OnInit, OnChanges {
         }
     }
 
+    public ngAfterViewInit(): void {
+        if (this.enableVirtualScroll) {
+            this.trySetRowHeightAndNotify();
+        }
+    }
+
     public onRowSelectedChanged($event: boolean): void {
         this.rowData.selected = $event;
 
@@ -117,7 +125,7 @@ export class DataGridRowComponent implements OnInit, OnChanges {
     public toggleExpanded(): void {
         this.rowData.expanded = !this.rowData.expanded;
 
-        this.onRowExpanded.emit(this.rowData);
+        setTimeout(() => this.trySetRowHeightAndNotify());
     }
 
     public onColumnsRowClicked(): void {
@@ -205,5 +213,29 @@ export class DataGridRowComponent implements OnInit, OnChanges {
 
                 this.element.classList.remove("row-dragging-over");
             });
+    }
+
+    private get heightChanged(): boolean {
+        const style = window.getComputedStyle(this.el.nativeElement),
+            currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+
+        return this.rowData.rowHeight !== currentHeight;
+    }
+
+    private trySetRowHeightAndNotify(): void {
+        const style = window.getComputedStyle(this.el.nativeElement),
+            currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+
+        if (this.rowData.rowHeight !== currentHeight) {
+            const previousHeight = this.rowData.rowHeight || 0;
+
+            this.rowData.rowHeight = currentHeight;
+
+            this.onRowHeightChanged.emit({
+                previousValue: previousHeight,
+                currentValue: currentHeight,
+                rowData: this.rowData
+            });
+        }
     }
 }
