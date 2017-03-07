@@ -8,6 +8,7 @@ export class RowData {
     expanded?: boolean;
     data?: any;
     relocated?: boolean;
+    rowHeight?: number;
 }
 
 export interface RowMarkData {
@@ -39,6 +40,12 @@ export interface ISelectionChangedEvent {
     selected?: any[]|Map<string, boolean>;
 }
 
+export interface RowHeightChangedEvent {
+    previousValue: number;
+    currentValue: number;
+    rowData: RowData;
+}
+
 export class Column {
     field: string;
     header: string;
@@ -53,7 +60,7 @@ export class Column {
         this.field = component.field;
         this.header = component.header || "";
         this.sortField = component.sortField || "";
-        this.visible = component.visible || component.visible === undefined ? true : false;
+        this.visible = component.visible || component.visible === undefined;
         this.resizable = component.resizable || true;
         this.template = component.template || null;
 

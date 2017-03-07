@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {Subscription} from "rxjs";
-import {RowData, RowDragEndedEvent, RowMarkData, Column} from "../data-grid.model";
+import {RowData, RowDragEndedEvent, RowMarkData, Column, RowHeightChangedEvent} from "../data-grid.model";
 
 @Component({
     selector: "data-grid-row",

@@ -20,7 +20,14 @@ import {cloneDeep} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import "rxjs/operator/debounceTime";
 import {SelectionService, ColumnsService} from "../data-grid.services";
-import {RowData, RowDragEndedEvent, SortChangedEvent, LoadNextPageEvent, Column} from "../data-grid.model";
+import {
+    RowData,
+    RowDragEndedEvent,
+    SortChangedEvent,
+    LoadNextPageEvent,
+    Column,
+    RowHeightChangedEvent
+} from "../data-grid.model";
 import {Subscription} from "rxjs";
 
 export type SelectionMode = "single" | "multiple";
