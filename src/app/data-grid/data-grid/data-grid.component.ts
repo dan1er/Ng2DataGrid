@@ -577,4 +577,65 @@ export class DomHelper {
 
         return elements;
     }
+
+    static getTopFromWindow(element: HTMLElement) {
+        if (typeof element === "undefined" || !element) {
+            return 0;
+        }
+
+        return (element.offsetTop || 0) + DomHelper.getTopFromWindow(<HTMLElement>element.offsetParent);
+    };
+
+    static getElementTop(element: any) {
+        if (element.pageYOffset) {
+            return element.pageYOffset;
+        }
+
+        if (element.document) {
+            if (element.document.documentElement && element.document.documentElement.scrollTop) {
+                return element.document.documentElement.scrollTop;
+            }
+
+            if (element.document.body && element.document.body.scrollTop) {
+                return element.document.body.scrollTop;
+            }
+
+            return 0;
+        }
+
+        return element.scrollY || element.scrollTop || 0;
+    };
+
+    static getVisibleItemBounds(list, container, items, itemHeight, itemBuffer): {firstItemIndex: number, lastItemIndex: number} {
+        if (!container || !itemHeight || !items || !items.length) {
+            return;
+        }
+
+        const innerHeight = container.innerHeight,
+            clientHeight = container.clientHeight;
+
+
+        const viewHeight = innerHeight || clientHeight;
+
+        if (!viewHeight) {
+            return;
+        }
+
+        const viewTop = DomHelper.getElementTop(container);
+        const viewBottom = viewTop + viewHeight;
+
+        const listTop = DomHelper.getTopFromWindow(list) - DomHelper.getTopFromWindow(container);
+        const listHeight = itemHeight * items.length;
+
+        const listViewTop = Math.max(0, viewTop - listTop);
+        const listViewBottom = Math.max(0, Math.min(listHeight, viewBottom - listTop));
+
+        const firstItemIndex = Math.max(0, Math.floor(listViewTop / itemHeight) - itemBuffer);
+        const lastItemIndex = Math.min(items.length, Math.ceil(listViewBottom / itemHeight) + itemBuffer) - 1;
+
+        return {
+            firstItemIndex: firstItemIndex,
+            lastItemIndex: lastItemIndex
+        };
+    };
 }
