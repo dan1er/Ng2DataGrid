@@ -10,6 +10,7 @@ import {
     OnChanges,
     SimpleChanges,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     AfterViewInit
 } from "@angular/core";
 import {fromEvent} from "rxjs/observable/fromEvent";
@@ -79,7 +80,9 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     private onDragStart$: Subscription;
     private onDrop$: Subscription;
 
-    constructor(private el: ElementRef, private zone: NgZone) {
+    constructor(private el: ElementRef,
+                private changeDetector: ChangeDetectorRef,
+                private zone: NgZone) {
         this.element = this.el.nativeElement;
     }
 
@@ -109,6 +112,8 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.enableVirtualScroll) {
             this.trySetRowHeightAndNotify();
         }
+
+        this.changeDetector.detach();
     }
 
     public onRowSelectedChanged($event: boolean): void {

@@ -6,7 +6,9 @@ import {
     ChangeDetectionStrategy,
     OnDestroy,
     ElementRef,
-    OnInit
+    OnInit,
+    AfterViewInit,
+    ChangeDetectorRef
 } from "@angular/core";
 import {SelectionService} from "../data-grid.services";
 import {Subscription} from "rxjs";
@@ -25,7 +27,7 @@ import {ISelectionChangedEvent} from "../data-grid.model";
     styleUrls: ["checkbox.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export default class CheckboxComponent implements OnInit, OnDestroy {
+export default class CheckboxComponent implements OnInit, OnDestroy, AfterViewInit {
     @Input() public displayAsRadio: boolean;
     @Input() public initializeSelected: boolean;
     @Input() public identifierProperty: string;
@@ -34,7 +36,9 @@ export default class CheckboxComponent implements OnInit, OnDestroy {
     private selectionSubscription$: Subscription;
     private element: HTMLDivElement;
 
-    constructor(private selectionService: SelectionService, private el: ElementRef) {
+    constructor(private selectionService: SelectionService,
+                private changeDetector: ChangeDetectorRef,
+                private el: ElementRef) {
         this.subscribeToSelectionChanged();
     }
 
@@ -44,6 +48,10 @@ export default class CheckboxComponent implements OnInit, OnDestroy {
         if (this.initializeSelected) {
             this.checked = true;
         }
+    }
+
+    public ngAfterViewInit(): void {
+        this.changeDetector.detach();
     }
 
     public get checked(): boolean {

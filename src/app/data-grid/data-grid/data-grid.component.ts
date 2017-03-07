@@ -13,7 +13,8 @@ import {
     SimpleChanges,
     ChangeDetectionStrategy,
     AfterContentChecked,
-    OnDestroy
+    OnDestroy,
+    AfterViewInit
 } from "@angular/core";
 import "rxjs/add/operator/debounceTime";
 import {cloneDeep} from "lodash";
@@ -95,7 +96,7 @@ export type SelectionMode = "single" | "multiple";
     styleUrls: ["data-grid.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterContentChecked {
+export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit, AfterContentChecked {
     @Input() public readonly identifierProperty: string;
     @Input() public data: any[];
     @Input() public selected: any[];
@@ -185,6 +186,10 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterCon
     public ngOnDestroy(): void {
         this.columnsChangedSubscription$.unsubscribe();
         this.bodyScrollingSubscription$.unsubscribe();
+    }
+
+    public ngAfterViewInit(): void {
+        this.changeDetector.detach();
     }
 
     public ngAfterContentChecked(): void {
