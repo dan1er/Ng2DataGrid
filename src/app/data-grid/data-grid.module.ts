@@ -6,7 +6,7 @@ import {GridColumnComponent} from "./data-grid-column/data-grid-column.component
 import {DataGridRowComponent} from "./data-grid-row/data-grid-row.component";
 import CheckboxComponent from "./checkbox/checkbox.component";
 import SpinnerComponent from "./spinner/spinner.component";
-import {SelectionService} from "./data-grid.services";
+import {SelectionService, ColumnsService} from "./data-grid.services";
 
 @NgModule({
     imports: [
@@ -21,7 +21,7 @@ import {SelectionService} from "./data-grid.services";
         CheckboxComponent,
         SpinnerComponent
     ],
-    providers: [SelectionService],
+    providers: [SelectionService, ColumnsService],
     exports: [DataGridComponent, GridColumnComponent]
 })
 export class DataGridModule {
