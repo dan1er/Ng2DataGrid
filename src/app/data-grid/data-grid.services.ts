@@ -1,7 +1,6 @@
 import {Injectable, EventEmitter} from "@angular/core";
 import {ISelectionChangedEvent, Column} from "./data-grid.model";
 import {findIndex} from "lodash";
-import {publishLast} from "rxjs/operator/publishLast";
 
 @Injectable()
 export class SelectionService {
