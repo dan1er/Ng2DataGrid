@@ -16,10 +16,6 @@ import {
     OnDestroy
 } from "@angular/core";
 import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/delay";
-import "rxjs/add/operator/takeUntil";
-import "rxjs/add/operator/switchMap";
 import {cloneDeep} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import "rxjs/operator/debounceTime";
