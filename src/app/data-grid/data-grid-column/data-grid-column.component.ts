@@ -1,4 +1,13 @@
-import {Component, Input, TemplateRef, ChangeDetectionStrategy, OnChanges, SimpleChanges} from "@angular/core";
+import {
+    Component,
+    Input,
+    TemplateRef,
+    ChangeDetectionStrategy,
+    OnChanges,
+    SimpleChanges,
+    ChangeDetectorRef,
+    AfterViewInit
+} from "@angular/core";
 import {ColumnsService} from "../data-grid.services";
 import {Column} from "../data-grid.model";
 
@@ -7,7 +16,7 @@ import {Column} from "../data-grid.model";
     template: ``,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridColumnComponent implements OnChanges {
+export class GridColumnComponent implements OnChanges, AfterViewInit {
     @Input() public field: string;
     @Input() public header: string;
     @Input() public width: string;
@@ -16,10 +25,15 @@ export class GridColumnComponent implements OnChanges {
     @Input() public visible: boolean;
     @Input() public template: TemplateRef<any>;
 
-    constructor(private columnsService: ColumnsService) {
+    constructor(private columnsService: ColumnsService,
+                private changeDetector: ChangeDetectorRef) {
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
         this.columnsService.registerColumn(new Column(this));
+    }
+
+    public ngAfterViewInit(): void {
+        this.changeDetector.detach();
     }
 }
