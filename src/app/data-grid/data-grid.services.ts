@@ -8,7 +8,7 @@ export class SelectionService {
     public selectionChanged$: EventEmitter<ISelectionChangedEvent> = new EventEmitter();
     public identifierProperty: string = "";
 
-    public emitSelectionChanged($event: ISelectionChangedEvent = null): void {
+    public emitSelectionChanged($event: ISelectionChangedEvent): void {
         if (this.identifierProperty && $event.selected && $event.selected instanceof Array) {
             const map: Map<string, boolean> = new Map();
 
