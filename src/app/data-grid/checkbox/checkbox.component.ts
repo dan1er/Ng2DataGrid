@@ -8,8 +8,9 @@ import {
     ElementRef,
     OnInit
 } from "@angular/core";
-import {SelectionService, ISelectionChangedEvent} from "../data-grid.services";
+import {SelectionService} from "../data-grid.services";
 import {Subscription} from "rxjs";
+import {ISelectionChangedEvent} from "../data-grid.model";
 
 @Component({
     selector: "data-grid-checkbox",

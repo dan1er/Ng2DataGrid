@@ -1,6 +1,7 @@
 import {Component, OnInit} from "@angular/core";
-import {LoadNextPageEvent} from "./data-grid/data-grid/data-grid.component";
 import {Http, Response} from "@angular/http";
+import "rxjs/add/operator/map";
+import {LoadNextPageEvent} from "./data-grid/data-grid.model";
 
 @Component({
     selector: "app-root",

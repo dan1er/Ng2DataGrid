@@ -2,9 +2,6 @@ import {
     Component,
     OnInit,
     Input,
-    ContentChildren,
-    QueryList,
-    AfterViewInit,
     ElementRef,
     TemplateRef,
     ChangeDetectorRef,
@@ -15,21 +12,18 @@ import {
     OnChanges,
     SimpleChanges,
     ChangeDetectionStrategy,
-    AfterViewChecked,
-    AfterContentChecked
+    AfterContentChecked,
+    OnDestroy
 } from "@angular/core";
 import "rxjs/add/operator/debounceTime";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/delay";
-import "rxjs/add/operator/takeUntil";
-import "rxjs/add/operator/switchMap";
-import {GridColumnComponent, Column} from "../data-grid-column/data-grid-column.component";
-import {random, cloneDeep, isEqual} from "lodash";
+import {cloneDeep} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import "rxjs/operator/debounceTime";
-import {SelectionService} from "../data-grid.services";
+import {SelectionService, ColumnsService} from "../data-grid.services";
+import {RowData, RowDragEndedEvent, SortChangedEvent, LoadNextPageEvent, Column} from "../data-grid.model";
+import {Subscription} from "rxjs";
 
-type selectionMode = "single" | "multiple";
+export type SelectionMode = "single" | "multiple";
 
 @Component({
     selector: "app-data-grid",
@@ -94,13 +88,13 @@ type selectionMode = "single" | "multiple";
     styleUrls: ["data-grid.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked, AfterContentChecked {
+export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterContentChecked {
     @Input() public readonly identifierProperty: string;
     @Input() public data: any[];
     @Input() public selected: any[];
     @Input() public totalRecords: number;
     @Input() public readonly rowsPerPage: number = 50;
-    @Input() public readonly selectionMode: selectionMode = "single";
+    @Input() public readonly selectionMode: SelectionMode = "single";
     @Input() public readonly showSelectionInput: boolean = true;
     @Input() public readonly expandTemplate: TemplateRef<any>;
     @Input() public readonly rowMarkField: string;
@@ -110,7 +104,6 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     @Output() public onSelectionChanged: EventEmitter<any[]> = new EventEmitter();
     @Output() public onSortChanged: EventEmitter<SortChangedEvent> = new EventEmitter();
     @Output() public onLoadNextPage: EventEmitter<LoadNextPageEvent> = new EventEmitter();
-    @ContentChildren(GridColumnComponent) public gridColumns: QueryList<GridColumnComponent>;
 
     public sorting: boolean = false;
     public sortingAscending: boolean = true;
@@ -139,10 +132,14 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     private displayData: string[];
     private scrolledItemsHeight: number;
 
+    private columnsChangedSubscription$: Subscription;
+    private bodyScrollingSubscription$: Subscription;
+
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
                 private zone: NgZone,
-                private selectionService: SelectionService) {
+                private selectionService: SelectionService,
+                private columnsService: ColumnsService) {
     }
 
     public ngOnInit(): void {
@@ -165,6 +162,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.scrollSizer = this.element.nativeElement.querySelector("div.scroller");
 
         this.subscribeToBodyScrolling();
+        this.subscribeToColumnsChanged();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -177,19 +175,9 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         }
     }
 
-    public ngAfterViewInit(): void {
-        this.initializeColumns();
-    }
-
-    public ngAfterViewChecked(): void {
-        const columns = this.gridColumns.map((component: GridColumnComponent) => new Column(component));
-
-        if (!isEqual(this.columns, columns)) {
-            setTimeout(() => {
-                this.initializeColumns();
-                this.changeDetector.markForCheck();
-            });
-        }
+    public ngOnDestroy(): void {
+        this.columnsChangedSubscription$.unsubscribe();
+        this.bodyScrollingSubscription$.unsubscribe();
     }
 
     public ngAfterContentChecked(): void {
@@ -331,9 +319,10 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
         this.resizedColumnIndex = columnIndex;
     }
 
-    private initializeColumns(): void {
-        this.zone.run(() => {
-            this.columns = this.gridColumns.map((component: GridColumnComponent) => new Column(component));
+    private subscribeToColumnsChanged(): void {
+        this.columnsChangedSubscription$ = this.columnsService.columnsChanged$.subscribe((columns: Column[]) => {
+            this.columns = columns;
+            this.changeDetector.markForCheck();
         });
     }
 
@@ -379,19 +368,17 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
     }
 
     private subscribeToBodyScrolling(): void {
-        this.zone.runOutsideAngular(() => {
-            const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
+        const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
-            fromEvent(bodyElement, "scroll")
-                .debounceTime(100)
-                .subscribe(() => {
-                    if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
-                        this.tryNotifyLoadPage();
-                    } else {
-                        this.processScroll();
-                    }
-                });
-        });
+        this.bodyScrollingSubscription$ = fromEvent(bodyElement, "scroll")
+            .debounceTime(100)
+            .subscribe(() => {
+                if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
+                    this.tryNotifyLoadPage();
+                } else {
+                    this.processScroll();
+                }
+            });
     }
 
     public get dataKeys(): IterableIterator<string> {
@@ -414,7 +401,7 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
                 el.data = item;
                 newMap.set(itemIdentifier, el);
             } else {
-                const identifier = this.identifierProperty ? itemIdentifier : `item_${random(5000, 1000000)}`;
+                const identifier = itemIdentifier;
                 newMap.set(
                     identifier,
                     {
@@ -504,46 +491,6 @@ export class DataGridComponent implements OnInit, OnChanges, AfterViewInit, Afte
             this.scrolledItemsHeight -= previousItemHeight;
         }
     }
-}
-
-export interface RowMarkData {
-    color?: string;
-    letter?: string;
-}
-
-export type sortDirection = "ascending" | "descending";
-
-export interface SortChangedEvent {
-    sortField: string;
-    sortDirection: sortDirection;
-}
-
-export interface RowData {
-    identifier?: string;
-    selected?: boolean;
-    expanded?: boolean;
-    data?: any;
-    relocated?: boolean;
-    rowHeight?: number;
-}
-
-export interface LoadNextPageEvent {
-    page: number;
-    from: number;
-    rowsPerPage: number;
-    sortField?: string;
-    sortDirection?: string;
-}
-
-export interface RowDragEndedEvent {
-    currentIndex: number;
-    nextIndex: number;
-}
-
-export interface RowHeightChangedEvent {
-    previousValue: number;
-    currentValue: number;
-    rowData: RowData;
 }
 
 export class DomHelper {
