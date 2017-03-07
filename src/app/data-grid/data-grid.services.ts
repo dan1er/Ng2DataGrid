@@ -1,4 +1,7 @@
 import {Injectable, EventEmitter} from "@angular/core";
+import {ISelectionChangedEvent, Column} from "./data-grid.model";
+import {findIndex} from "lodash";
+import {publishLast} from "rxjs/operator/publishLast";
 
 @Injectable()
 export class SelectionService {
@@ -20,8 +23,20 @@ export class SelectionService {
     }
 }
 
-export interface ISelectionChangedEvent {
-    allSelected?: boolean;
-    clearSelection?: boolean;
-    selected?: any[]|Map<string, boolean>;
+@Injectable()
+export class ColumnsService {
+    public columnsChanged$: EventEmitter<Column[]> = new EventEmitter();
+    private columns: Column[] = [];
+
+    public registerColumn(column: Column): void {
+        const index = findIndex(this.columns, {field: column.field});
+
+        if (index > 0) {
+            this.columns[index] = column;
+        } else {
+            this.columns.push(column);
+        }
+
+        this.columnsChanged$.emit(this.columns);
+    }
 }

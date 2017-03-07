@@ -1,11 +1,13 @@
-import {Component, Input, TemplateRef, ChangeDetectionStrategy} from "@angular/core";
+import {Component, Input, TemplateRef, ChangeDetectionStrategy, OnChanges, SimpleChanges} from "@angular/core";
+import {ColumnsService} from "../data-grid.services";
+import {Column} from "../data-grid.model";
 
 @Component({
     selector: "grid-column",
     template: ``,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridColumnComponent {
+export class GridColumnComponent implements OnChanges {
     @Input() public field: string;
     @Input() public header: string;
     @Input() public width: string;
@@ -13,28 +15,11 @@ export class GridColumnComponent {
     @Input() public sortField: string;
     @Input() public visible: boolean;
     @Input() public template: TemplateRef<any>;
-}
 
-export class Column {
-    field: string;
-    header: string;
-    width: string;
-    sortField: string;
-    visible: boolean;
-    sorting: boolean;
-    resizable: boolean;
-    template: TemplateRef<any>;
+    constructor(private columnsService: ColumnsService) {
+    }
 
-    constructor(component: any = {}) {
-        this.field = component.field;
-        this.header = component.header || "";
-        this.sortField = component.sortField || "";
-        this.visible = component.visible || component.visible === undefined ? true : false;
-        this.resizable = component.resizable || true;
-        this.template = component.template || null;
-
-        if (component.width) {
-            this.width = component.width;
-        }
+    public ngOnChanges(changes: SimpleChanges): void {
+        this.columnsService.registerColumn(new Column(this));
     }
 }

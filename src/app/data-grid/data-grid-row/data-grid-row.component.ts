@@ -11,10 +11,9 @@ import {
     SimpleChanges,
     ChangeDetectionStrategy
 } from "@angular/core";
-import {Column} from "../data-grid-column/data-grid-column.component";
-import {RowMarkData, RowData, RowDragEndedEvent} from "../data-grid/data-grid.component";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {Subscription} from "rxjs";
+import {RowData, RowDragEndedEvent, RowMarkData, Column} from "../data-grid.model";
 
 @Component({
     selector: "data-grid-row",
