@@ -67,7 +67,6 @@ export type SelectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
-                    <div class="scroller"></div>
                     <div class="data-table-body-data-container">
                         <template ngFor let-key let-pos="index" let-last="last" [ngForOf]="displayData">
                             <data-grid-row [columns]="visibleColumns" 
@@ -132,7 +131,6 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     private identifiersLookup: string[];
     private bodyElement: HTMLDivElement;
-    private scrollSizer: HTMLDivElement;
     private scrollContainer: HTMLDivElement;
     private scrollerHeight: number = 0;
     private scrollerInitialized: boolean;
@@ -142,6 +140,10 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     private columnsChangedSubscription$: Subscription;
     private bodyScrollingSubscription$: Subscription;
+
+    private firstItemIndex: number = 0;
+    private lastIndexIndex: number = 15;
+    private scrollBuffer: number;
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
@@ -158,6 +160,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         this.identifiersLookup = [];
         this.currentPosition = 0;
         this.scrolledItemsHeight = 0;
+        this.scrollBuffer = 0;
 
         if (!this.identifierProperty) {
             throw new Error("You have to set an identifier property");
@@ -167,7 +170,6 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
         this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
         this.scrollContainer = this.element.nativeElement.querySelector("div.data-table-body-data-container");
-        this.scrollSizer = this.element.nativeElement.querySelector("div.scroller");
 
         this.subscribeToBodyScrolling();
         this.subscribeToColumnsChanged();
@@ -204,11 +206,23 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             if (!this.scrollerInitialized) {
                 this.scrollerHeight = $event.currentValue * (this.totalRecords || this.data.length);
                 this.scrollerInitialized = true;
+
+                const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
+                    this.scrollContainer,
+                    this.bodyElement,
+                    this.data.length,
+                    $event.currentValue,
+                    this.scrollBuffer);
+
+                this.firstItemIndex = firstItemIndex;
+                this.lastIndexIndex = lastItemIndex;
             }
 
-            this.scrollerHeight -= $event.previousValue;
-            this.scrollerHeight += $event.currentValue;
-            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
+            if ($event.previousValue) {
+                this.scrollerHeight -= $event.previousValue;
+                this.scrollerHeight += $event.currentValue;
+            }
+            this.scrollContainer.style.height = `${this.scrollerHeight}px`;
         }
     }
 
@@ -216,8 +230,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         return (this.columns || []).filter((column: Column) => column.visible);
     }
 
-    public setDisplayData(from: number = 0, take: number = 5): void {
-        this.displayData = this.identifiersLookup.slice(from, from + take);
+    public setDisplayData(from: number = 0, take: number = 100): void {
+        this.displayData = this.identifiersLookup.slice(from, from + take + 1);
     }
 
     public get selectedCount(): number {
@@ -231,7 +245,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     }
 
     public get lastPageReached(): boolean {
-        return (this.currentPage + 1) * this.rowsPerPage >= this.totalRecords;
+        return this.data.length >= this.totalRecords;
     }
 
     public onSelectAllChanged($event: boolean): void {
@@ -383,7 +397,6 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
 
         this.bodyScrollingSubscription$ = fromEvent(bodyElement, "scroll")
-            .debounceTime(100)
             .subscribe(() => {
                 if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
                     this.tryNotifyLoadPage();
@@ -430,7 +443,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
         this.isLoading = false;
 
-        this.setDisplayData(this.currentPosition);
+        this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
     }
 
     private markSelected(): void {
@@ -483,25 +496,70 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         });
     }
 
-    private processScroll(): void {
-        const scrollTop = this.bodyElement.scrollTop,
-            currentItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition]).rowHeight;
+    private get itemsInView(): number {
+        const rows = this.scrollContainer.querySelectorAll("data-grid-row");
+        let i = rows.length - 1;
 
-        if (scrollTop > (this.scrolledItemsHeight + currentItemHeight)) {
-            const rect = this.scrollContainer.getBoundingClientRect();
+        const innerHeight = (<any>this.bodyElement).innerHeight,
+            clientHeight = this.bodyElement.clientHeight;
 
-            this.scrollContainer.style.top = `${scrollTop - rect.top}px`;
 
-            this.scrolledItemsHeight += currentItemHeight;
-            this.setDisplayData(++this.currentPosition);
-        } else if (this.scrolledItemsHeight > scrollTop + currentItemHeight) {
-            const previousItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition - 1]).rowHeight;
+        const viewHeight = innerHeight || clientHeight;
+        const viewTop = DomHelper.getElementTop(this.bodyElement);
+        const viewBottom = viewTop + viewHeight;
 
-            this.scrollContainer.style.top = `${scrollTop}px`;
+        for (; i >= 0; i--) {
+            let top = DomHelper.getTopFromWindow(<HTMLElement>rows[i]);
 
-            this.setDisplayData(--this.currentPosition);
-            this.scrolledItemsHeight -= previousItemHeight;
+            console.log(top + " - " + viewBottom)
+            if (top <= viewBottom) {
+               // return i;
+            }
         }
+
+        return 1;
+    }
+
+    private processScroll(): void {
+        let it = this.itemsInView;
+
+        console.log(it);
+
+        const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
+            this.scrollContainer,
+            this.bodyElement,
+            this.data.length,
+            this.innerData.get(this.identifiersLookup[this.firstItemIndex]).rowHeight,
+            this.scrollBuffer);
+
+        if (this.firstItemIndex !== firstItemIndex || this.lastIndexIndex !== lastItemIndex) {
+            this.firstItemIndex = firstItemIndex;
+            this.lastIndexIndex = lastItemIndex;
+
+            const paddingTop = firstItemIndex * 65;
+            const height = this.scrollerHeight - paddingTop;
+
+            this.scrollContainer.style.paddingTop = `${paddingTop}px`;
+            this.scrollContainer.style.height = `${height}px`;
+
+            this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
+            this.changeDetector.markForCheck();
+        }
+        /*if (scrollTop > (this.scrolledItemsHeight + currentItemHeight)) {
+         const rect = this.scrollContainer.getBoundingClientRect();
+
+         this.scrollContainer.style.top = `${scrollTop - rect.top}px`;
+
+         this.scrolledItemsHeight += currentItemHeight;
+         this.setDisplayData(++this.currentPosition);
+         } else if (this.scrolledItemsHeight > scrollTop + currentItemHeight) {
+         const previousItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition - 1]).rowHeight;
+
+         this.scrollContainer.style.top = `${scrollTop}px`;
+
+         this.setDisplayData(--this.currentPosition);
+         this.scrolledItemsHeight -= previousItemHeight;
+         }*/
     }
 }
 
@@ -606,8 +664,12 @@ export class DomHelper {
         return element.scrollY || element.scrollTop || 0;
     };
 
-    static getVisibleItemBounds(list, container, items, itemHeight, itemBuffer): {firstItemIndex: number, lastItemIndex: number} {
-        if (!container || !itemHeight || !items || !items.length) {
+    static getVisibleItemBounds(list: HTMLDivElement,
+                                container: any,
+                                itemsLength: number,
+                                itemHeight: number,
+                                itemBuffer: number): {firstItemIndex: number, lastItemIndex: number} {
+        if (!container || !itemHeight || !itemsLength) {
             return;
         }
 
@@ -625,13 +687,13 @@ export class DomHelper {
         const viewBottom = viewTop + viewHeight;
 
         const listTop = DomHelper.getTopFromWindow(list) - DomHelper.getTopFromWindow(container);
-        const listHeight = itemHeight * items.length;
+        const listHeight = itemHeight * itemsLength;
 
         const listViewTop = Math.max(0, viewTop - listTop);
         const listViewBottom = Math.max(0, Math.min(listHeight, viewBottom - listTop));
 
         const firstItemIndex = Math.max(0, Math.floor(listViewTop / itemHeight) - itemBuffer);
-        const lastItemIndex = Math.min(items.length, Math.ceil(listViewBottom / itemHeight) + itemBuffer) - 1;
+        const lastItemIndex = Math.min(itemsLength, Math.ceil(listViewBottom / itemHeight) + itemBuffer) - 1;
 
         return {
             firstItemIndex: firstItemIndex,
