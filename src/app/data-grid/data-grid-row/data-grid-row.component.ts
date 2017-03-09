@@ -11,7 +11,8 @@ import {
     SimpleChanges,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    AfterViewInit
+    AfterViewInit,
+    HostBinding
 } from "@angular/core";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {Subscription} from "rxjs";
@@ -67,11 +68,11 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly allowRowsReorder: string;
     @Input() public readonly relocatedStyles: string[];
     @Input() public initializeSelected: boolean;
-    @Input() public rowIndex: number;
     @Input() public enableVirtualScroll: boolean;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public onRowDragEnded: EventEmitter<RowDragEndedEvent> = new EventEmitter();
     @Output() public onRowHeightChanged: EventEmitter<RowHeightChangedEvent> = new EventEmitter();
+    @HostBinding("attr.data-identifier") identifier: string;
 
     private element: HTMLDivElement;
     private draggingSubscribersInitialized: boolean;
@@ -88,6 +89,8 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
 
     public ngOnInit(): void {
         this.initRowMarkData();
+
+        this.identifier = this.rowData.identifier;
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -181,7 +184,7 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
             .subscribe(($event: DragEvent) => {
                 $event.stopPropagation();
 
-                $event.dataTransfer.setData("index", `${this.rowIndex}`);
+                $event.dataTransfer.setData("index", `${this.rowData.rowIndex}`);
                 $event.dataTransfer.effectAllowed = "move";
             });
     }
@@ -213,7 +216,7 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
                 $event.preventDefault();
 
                 const index = $event.dataTransfer.getData("index");
-                this.onRowDragEnded.emit({currentIndex: +index, nextIndex: this.rowIndex});
+                this.onRowDragEnded.emit({currentIndex: +index, nextIndex: this.rowData.rowIndex});
 
                 this.element.classList.remove("row-dragging-over");
             });
