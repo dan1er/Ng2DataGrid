@@ -8,11 +8,10 @@
           <option name="USE_PUBLIC_MODIFIER" value="true" />
           <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
         </TypeScriptCodeStyleSettings>
-        <codeStyleSettings language="TypeScript">
+        <codeStyleSettings language="LESS">
           <indentOptions>
-            <option name="INDENT_SIZE" value="8" />
-            <option name="CONTINUATION_INDENT_SIZE" value="8" />
-            <option name="USE_TAB_CHARACTER" value="true" />
+            <option name="INDENT_SIZE" value="4" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
           </indentOptions>
         </codeStyleSettings>
       </value>

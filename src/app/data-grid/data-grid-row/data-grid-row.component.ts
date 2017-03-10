@@ -9,7 +9,9 @@ import {
     NgZone,
     OnChanges,
     SimpleChanges,
-    ChangeDetectionStrategy
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    AfterViewInit
 } from "@angular/core";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import {Subscription} from "rxjs";
@@ -55,7 +57,7 @@ import {RowData, RowDragEndedEvent, RowMarkData, Column} from "../data-grid.mode
     styleUrls: ["./data-grid-row.component.less"],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataGridRowComponent implements OnInit, OnChanges {
+export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly columns: Column[];
     @Input() public rowData: RowData;
     @Input() public readonly showSelectionInput: boolean;
@@ -77,7 +79,9 @@ export class DataGridRowComponent implements OnInit, OnChanges {
     private onDragStart$: Subscription;
     private onDrop$: Subscription;
 
-    constructor(private el: ElementRef, private zone: NgZone) {
+    constructor(private el: ElementRef,
+                private changeDetector: ChangeDetectorRef,
+                private zone: NgZone) {
         this.element = this.el.nativeElement;
     }
 
@@ -101,6 +105,10 @@ export class DataGridRowComponent implements OnInit, OnChanges {
                 }
             }
         }
+    }
+
+    public ngAfterViewInit(): void {
+        this.changeDetector.detach();
     }
 
     public onRowSelectedChanged($event: boolean): void {
