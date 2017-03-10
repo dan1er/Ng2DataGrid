@@ -9,7 +9,8 @@ export class RowData {
     data?: any;
     relocated?: boolean;
     rowHeight?: number;
-    rowIndex: number;
+    rowIndex?: number;
+    heightOffset?: number;
 }
 
 export interface RowMarkData {

@@ -24,6 +24,7 @@
         box-shadow: @row-shadow;
         font-size: 13px;
         font-weight: 500;
+        z-index: 1;
 
         .column {
             position: relative;
@@ -93,10 +94,15 @@
         background-color: @body-background;
         display: flex;
         width: 100%;
+        position: relative;
 
         &-data-container {;
             width: 100%;
-            position: relative;
+            position: absolute;
+        }
+
+        .scroller {
+            width: 1px;
         }
     }
 }

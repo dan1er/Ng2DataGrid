@@ -67,6 +67,7 @@ export type SelectionMode = "single" | "multiple";
                     </div>
                 </div>      
                 <div class="data-table-body">
+                    <div class="scroller"></div>
                     <div class="data-table-body-data-container">
                         <template ngFor let-key let-last="last" [ngForOf]="displayData">
                             <data-grid-row [columns]="visibleColumns" 
@@ -131,8 +132,10 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private identifiersLookup: string[];
     private bodyElement: HTMLDivElement;
     private scrollContainer: HTMLDivElement;
+    private scrollSizer: HTMLDivElement;
     private scrollerHeight: number = 0;
     private scrollerInitialized: boolean;
+    private heightOffsetInitialized: boolean;
     private currentPosition: number;
     private displayData: string[];
     private scrolledItemsHeight: number;
@@ -144,6 +147,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private lastIndexIndex: number = 15;
     private scrollBuffer: number;
     private scrollPosition: number = 0;
+    private baseRowHeight: number = 0;
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
@@ -160,7 +164,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         this.identifiersLookup = [];
         this.currentPosition = 0;
         this.scrolledItemsHeight = 0;
-        this.scrollBuffer = 5;
+        this.scrollBuffer = 3;
 
         if (!this.identifierProperty) {
             throw new Error("You have to set an identifier property");
@@ -170,6 +174,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
         this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
         this.scrollContainer = this.element.nativeElement.querySelector("div.data-table-body-data-container");
+        this.scrollSizer = this.element.nativeElement.querySelector("div.scroller");
 
         this.subscribeToBodyScrolling();
         this.subscribeToColumnsChanged();
@@ -205,6 +210,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         if ($event) {
             if (!this.scrollerInitialized) {
                 this.scrollerHeight = $event.currentValue * (this.totalRecords || this.data.length);
+                this.baseRowHeight = $event.currentValue;
                 this.scrollerInitialized = true;
 
                 const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
@@ -221,8 +227,16 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             if ($event.previousValue) {
                 this.scrollerHeight -= $event.previousValue;
                 this.scrollerHeight += $event.currentValue;
+
+                if (!this.heightOffsetInitialized) {
+                    this.setHeightOffset(0);
+                    this.heightOffsetInitialized = true;
+                } else {
+                    this.setHeightOffset($event.rowData.rowIndex);
+                }
             }
-            this.scrollContainer.style.height = `${this.scrollerHeight}px`;
+            // this.scrollContainer.style.height = `${this.scrollerHeight}px`;
+            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
         }
     }
 
@@ -230,8 +244,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         return (this.columns || []).filter((column: Column) => column.visible);
     }
 
-    public setDisplayData(from: number = 0, take: number = 100): void {
-        this.displayData = this.identifiersLookup.slice(from, from + take + 1);
+    public setDisplayData(from: number, to: number): void {
+        this.displayData = this.identifiersLookup.slice(from, to + 1);
     }
 
     public get selectedCount(): number {
@@ -501,48 +515,144 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private processScroll(): void {
         const scrollingDown: boolean = this.bodyElement.scrollTop >= this.scrollPosition;
 
-        this.scrollPosition = this.bodyElement.scrollTop;
+        if (!this.heightOffsetInitialized) {
+            this.setHeightOffset(0);
+            this.heightOffsetInitialized = true;
+        }
 
-        const {firstItemIndex, lastItemIndex, scrolled} = DomHelper.getVisibleItemBounds(
+        const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
             this.bodyElement,
             this.data.length,
             this.innerData.get(this.identifiersLookup[this.firstItemIndex]).rowHeight,
             this.scrollBuffer,
-            this.innerData,
-            scrollingDown);
+            this.innerData);
 
-        console.log(firstItemIndex + "  " + lastItemIndex);
         if (this.firstItemIndex !== firstItemIndex || this.lastIndexIndex !== lastItemIndex) {
-            this.firstItemIndex = firstItemIndex;
-            this.lastIndexIndex = lastItemIndex;
+            console.log(`scrolling: ${scrollingDown}, firstItemIndex: ${firstItemIndex}, this.firstItemIndex: ${this.firstItemIndex}`);
 
-            const height = this.scrollerHeight - scrolled;
+            let heightOffset = 0;
 
-            this.scrollContainer.style.paddingTop = `${scrolled}px`;
-            this.scrollContainer.style.height = `${height}px`;
+            const scrollTop = this.bodyElement.scrollTop,
+                scrollBottom = scrollTop + this.bodyElement.clientHeight;
+
+            if ((scrollingDown && firstItemIndex - this.scrollBuffer < this.firstItemIndex) ||
+                (scrollingDown && scrollBottom - this.scrollPosition > 100) ||
+                (!scrollingDown && this.scrollPosition - scrollTop > 100)) {
+                const scrollBottomHeight = this.bodyElement.scrollHeight - scrollTop;
+
+                if (scrollBottom - scrollTop <= this.baseRowHeight) {
+                    this.firstItemIndex = this.totalRecords - 1;
+                } else if (scrollTop < scrollBottomHeight) {
+                    this.firstItemIndex = Math.floor(scrollTop / this.baseRowHeight);
+                } else {
+                    this.firstItemIndex = this.totalRecords - Math.floor(scrollBottomHeight / this.baseRowHeight);
+                }
+
+                this.lastIndexIndex = this.firstItemIndex + 20;
+                heightOffset = this.bodyElement.scrollTop;
+
+                console.log(`Item: ${Math.floor(this.bodyElement.scrollTop / this.baseRowHeight + this.scrollBuffer)}`);
+            } else {
+                this.firstItemIndex = firstItemIndex;
+                this.lastIndexIndex = lastItemIndex;
+
+                heightOffset = this.innerData.get(this.identifiersLookup[this.firstItemIndex]).heightOffset;
+            }
 
             this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
             this.changeDetector.markForCheck();
+
+            this.scrollContainer.style.transform = `translateY(${heightOffset}px)`;
         }
-        /*if (scrollTop > (this.scrolledItemsHeight + currentItemHeight)) {
-         const rect = this.scrollContainer.getBoundingClientRect();
+        this.scrollPosition = this.bodyElement.scrollTop;
+    }
 
-         this.scrollContainer.style.top = `${scrollTop - rect.top}px`;
-
-         this.scrolledItemsHeight += currentItemHeight;
-         this.setDisplayData(++this.currentPosition);
-         } else if (this.scrolledItemsHeight > scrollTop + currentItemHeight) {
-         const previousItemHeight = this.innerData.get(this.identifiersLookup[this.currentPosition - 1]).rowHeight;
-
-         this.scrollContainer.style.top = `${scrollTop}px`;
-
-         this.setDisplayData(--this.currentPosition);
-         this.scrolledItemsHeight -= previousItemHeight;
-         }*/
+    private setHeightOffset(index: number): void {
+        for (let i = index; i < this.identifiersLookup.length; i++) {
+            const current = this.innerData.get(this.identifiersLookup[i]),
+                previous = i > 0 && this.innerData.get(this.identifiersLookup[i - 1]);
+            current.heightOffset = (previous ? previous.heightOffset + (previous.rowHeight || this.baseRowHeight) : 0);
+        }
     }
 }
 
 export class DomHelper {
+    static getVisibleItemBounds(container: any,
+                                itemsLength: number,
+                                itemHeight: number,
+                                itemBuffer: number,
+                                innerData: Map<string, RowData>): {firstItemIndex: number, lastItemIndex: number} {
+        if (!container || !itemHeight || !itemsLength) {
+            return;
+        }
+
+        const innerHeight = container.innerHeight,
+            clientHeight = container.clientHeight;
+
+
+        const viewHeight = innerHeight || clientHeight;
+
+        if (!viewHeight) {
+            return;
+        }
+
+        let current: HTMLElement,
+            firstItemIndex: number,
+            lastItemIndex: number,
+            firstItemFound: boolean = false,
+            lastItemFound: boolean = false;
+
+        const rows = container.querySelectorAll("data-grid-row");
+
+        if (rows) {
+            for (let i = 0; i < rows.length; i++) {
+                current = <HTMLElement>rows[i];
+
+                const identifier = current.getAttribute("data-identifier"),
+                    rowData: RowData = innerData.get(identifier);
+
+                if (rowData) {
+                    const containerBoundaries = container.getBoundingClientRect(),
+                        rowBoundaries = current.getBoundingClientRect();
+
+                    const containerTop = containerBoundaries.top,
+                        containerBottom = containerBoundaries.top + containerBoundaries.height,
+                        rowTop = rowBoundaries.top,
+                        rowBottom = rowBoundaries.top
+                            + rowBoundaries.height;
+
+                    if (!firstItemFound) {
+                        if (rowBottom >= containerTop) {
+                            firstItemIndex = rowData.rowIndex;
+                            firstItemFound = true;
+                        }
+                    } else {
+                        if (rowTop <= containerBottom && rowBottom >= containerBottom) {
+                            lastItemIndex = rowData.rowIndex;
+                            lastItemFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (firstItemIndex === undefined) {
+            firstItemIndex = 1 + itemBuffer;
+        }
+
+        if (!lastItemFound) {
+            lastItemIndex = firstItemIndex + 20;
+        }
+
+        console.log(`first: ${firstItemIndex} - last: ${lastItemIndex}`);
+
+        return {
+            firstItemIndex: Math.max(0, firstItemIndex - itemBuffer),
+            lastItemIndex: Math.max(0, lastItemIndex + itemBuffer)
+        };
+    }
+
     static addClassToElement(element: Element, ...cssClass: string[]): Element {
         element.classList.add(...cssClass);
         return element;
@@ -621,7 +731,7 @@ export class DomHelper {
         }
 
         return (element.offsetTop || 0) + DomHelper.getTopFromWindow(<HTMLElement>element.offsetParent);
-    };
+    }
 
     static getElementTop(element: any) {
         if (element.pageYOffset) {
@@ -641,75 +751,5 @@ export class DomHelper {
         }
 
         return element.scrollY || element.scrollTop || 0;
-    };
-
-    static getVisibleItemBounds(container: any,
-                                itemsLength: number,
-                                itemHeight: number,
-                                itemBuffer: number,
-                                innerData: Map<string, RowData>,
-                                scrollingDown: boolean = true): {firstItemIndex: number, lastItemIndex: number, scrolled: number} {
-        if (!container || !itemHeight || !itemsLength) {
-            return;
-        }
-
-        const innerHeight = container.innerHeight,
-            clientHeight = container.clientHeight;
-
-
-        const viewHeight = innerHeight || clientHeight;
-
-        if (!viewHeight) {
-            return;
-        }
-
-        let current: HTMLElement,
-            firstItemIndex: number = 0,
-            lastItemIndex: number = 0;
-
-        const rows = container.querySelectorAll("data-grid-row");
-
-        if (rows) {
-            for (let i = 0; i < rows.length; i++) {
-                current = <HTMLElement>rows[i];
-
-                const identifier = current.getAttribute("data-identifier"),
-                    rowData: RowData = innerData.get(identifier);
-
-                if (rowData) {
-                    const containerBoundaries = container.getBoundingClientRect(),
-                        rowBoundaries = current.getBoundingClientRect(),
-                        rowStyles = window.getComputedStyle(current);
-
-                    const containerTop = containerBoundaries.top,
-                        containerBottom = containerBoundaries.top + containerBoundaries.height,
-                        rowTop = rowBoundaries.top,
-                        rowBottom = rowBoundaries.top
-                            + rowBoundaries.height
-                            + parseFloat(rowStyles.marginTop)
-                            + parseFloat(rowStyles.marginBottom);
-
-
-                    if (!firstItemIndex) {
-                        if (rowBottom >= containerTop) {
-                            firstItemIndex = rowData.rowIndex;
-                            console.log(current);
-                        }
-                    } else {
-                        if (rowTop <= containerBottom && rowBottom >= containerBottom) {
-                            lastItemIndex = rowData.rowIndex;
-                            console.log(current);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return {
-            firstItemIndex: Math.max(0, firstItemIndex - itemBuffer),
-            lastItemIndex: Math.max(0, lastItemIndex + itemBuffer),
-            scrolled: container.scrollTop
-        };
-    };
+    }
 }
