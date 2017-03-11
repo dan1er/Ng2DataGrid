@@ -112,11 +112,11 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     public ngAfterViewInit(): void {
+        this.changeDetector.detach();
+
         if (this.enableVirtualScroll) {
             this.trySetRowHeightAndNotify();
         }
-
-        this.changeDetector.detach();
     }
 
     public onRowSelectedChanged($event: boolean): void {
@@ -222,16 +222,11 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
             });
     }
 
-    private get heightChanged(): boolean {
-        const style = window.getComputedStyle(this.el.nativeElement),
-            currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
-
-        return this.rowData.rowHeight !== currentHeight;
-    }
-
     private trySetRowHeightAndNotify(): void {
         const style = window.getComputedStyle(this.el.nativeElement),
             currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+
+        this.changeDetector.detectChanges();
 
         if (this.rowData.rowHeight !== currentHeight) {
             const previousHeight = this.rowData.rowHeight || 0;

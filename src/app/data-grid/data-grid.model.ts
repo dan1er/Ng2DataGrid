@@ -39,7 +39,7 @@ export interface RowDragEndedEvent {
 export interface ISelectionChangedEvent {
     allSelected?: boolean;
     clearSelection?: boolean;
-    selected?: any[]|Map<string, boolean>;
+    selected?: any[]|Map<boolean>;
 }
 
 export interface RowHeightChangedEvent {
@@ -69,5 +69,42 @@ export class Column {
         if (component.width) {
             this.width = component.width;
         }
+    }
+}
+
+export class Map<T> {
+    private _innerData: {[propName: string]: T} = {};
+    private _last: T;
+
+    public values(): T[] {
+        const data: T[] = [];
+
+        Object.keys(this._innerData).forEach((key: string) => data.push(this.get(key)));
+
+        return data;
+    }
+
+    public keys(): string[] {
+        return Object.keys(this._innerData);
+    }
+
+    public get(key: string): T {
+        return this._innerData[key];
+    }
+
+    public set(key: string, value: T): T {
+        if (!this.has(key)) {
+            this._last = value;
+        }
+
+        return this._innerData[key] = value;
+    }
+
+    public has(key: string): boolean {
+        return !!this._innerData[key];
+    }
+
+    public last(): T {
+        return this._last;
     }
 }

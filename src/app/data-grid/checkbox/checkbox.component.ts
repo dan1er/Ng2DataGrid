@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import {SelectionService} from "../data-grid.services";
 import {Subscription} from "rxjs";
-import {ISelectionChangedEvent} from "../data-grid.model";
+import {ISelectionChangedEvent, Map} from "../data-grid.model";
 
 @Component({
     selector: "data-grid-checkbox",
@@ -94,7 +94,7 @@ export default class CheckboxComponent implements OnInit, OnDestroy, AfterViewIn
                 if (!this.identifierProperty) {
                     this.checked = false;
                 } else {
-                    if ((<Map<string, boolean>>$event.selected).has(this.identifierProperty)) {
+                    if ((<Map<boolean>>$event.selected).has(this.identifierProperty)) {
                         this.checked = true;
                     } else {
                         this.checked = false;

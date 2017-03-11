@@ -11,7 +11,6 @@ import {
     NgZone,
     OnChanges,
     SimpleChanges,
-    ChangeDetectionStrategy,
     AfterContentChecked,
     OnDestroy,
     AfterViewInit
@@ -27,7 +26,8 @@ import {
     SortChangedEvent,
     LoadNextPageEvent,
     Column,
-    RowHeightChangedEvent
+    RowHeightChangedEvent,
+    Map
 } from "../data-grid.model";
 import {Subscription} from "rxjs";
 
@@ -92,8 +92,7 @@ export type SelectionMode = "single" | "multiple";
                 </div>
             </div>
     `,
-    styleUrls: ["data-grid.component.less"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ["data-grid.component.less"]
 })
 export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit, AfterContentChecked {
     @Input() public readonly identifierProperty: string;
@@ -123,7 +122,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     public rowsInitialized: boolean;
 
     public columns: Column[];
-    public innerData: Map<string, RowData>;
+    public innerData: Map<RowData>;
     public isLoading: boolean;
     public allSelected: boolean;
     private currentPage: number = 0;
@@ -158,7 +157,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     public ngOnInit(): void {
         this.isLoading = true;
-        this.innerData = new Map();
+        this.innerData = new Map<RowData>();
         this.selected = [];
         this.data = this.data || [];
         this.identifiersLookup = [];
@@ -246,16 +245,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     public setDisplayData(from: number, to: number): void {
         this.displayData = this.identifiersLookup.slice(from, to + 1);
-    }
 
-    public get selectedCount(): number {
-        let counter = 0;
-        for (const row of this.innerData.values()) {
-            if (row.selected) {
-                counter++;
-            }
-        }
-        return counter;
+        this.changeDetector.detectChanges();
     }
 
     public get lastPageReached(): boolean {
@@ -362,7 +353,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private subscribeToColumnsChanged(): void {
         this.columnsChangedSubscription$ = this.columnsService.columnsChanged$.subscribe((columns: Column[]) => {
             this.columns = columns;
-            this.changeDetector.markForCheck();
+            this.changeDetector.detectChanges();
         });
     }
 
@@ -414,14 +405,9 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             .subscribe(() => {
                 if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
                     this.tryNotifyLoadPage();
-                } else {
-                    this.processScroll();
                 }
+                this.processScroll();
             });
-    }
-
-    public get dataKeys(): IterableIterator<string> {
-        return this.innerData.keys();
     }
 
     private processData(data: any[]): void {
@@ -429,7 +415,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             this.selected = data;
         }
 
-        const newMap: Map<string, RowData> = new Map();
+        const newMap: Map<RowData> = new Map();
         this.identifiersLookup = [];
 
         let index = 0;
@@ -485,13 +471,13 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     }
 
     private regenerateInnerDataFromRowsData(data: RowData[]): void {
-        this.zone.run(() => {
-            const map: Map<string, RowData> = new Map();
+        const map: Map<RowData> = new Map();
 
-            (data || []).forEach((row: RowData) => map.set(row.identifier, row));
+        (data || []).forEach((row: RowData) => map.set(row.identifier, row));
 
-            this.innerData = map;
-        });
+        this.innerData = map;
+
+        this.changeDetector.detectChanges();
     }
 
     private tryNotifyLoadPage(): void {
@@ -525,33 +511,40 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             this.data.length,
             this.innerData.get(this.identifiersLookup[this.firstItemIndex]).rowHeight,
             this.scrollBuffer,
-            this.innerData);
+            this.innerData,
+            scrollingDown);
 
         if (this.firstItemIndex !== firstItemIndex || this.lastIndexIndex !== lastItemIndex) {
-            console.log(`scrolling: ${scrollingDown}, firstItemIndex: ${firstItemIndex}, this.firstItemIndex: ${this.firstItemIndex}`);
-
             let heightOffset = 0;
 
             const scrollTop = this.bodyElement.scrollTop,
-                scrollBottom = scrollTop + this.bodyElement.clientHeight;
+                scrollBottom = this.bodyElement.scrollHeight - this.bodyElement.scrollTop - this.bodyElement.clientHeight,
+                lastHeight = this.innerData.last().rowHeight;
 
-            if ((scrollingDown && firstItemIndex - this.scrollBuffer < this.firstItemIndex) ||
-                (scrollingDown && scrollBottom - this.scrollPosition > 100) ||
+            const scrollBottomHeight = this.bodyElement.scrollHeight - scrollTop;
+
+            if ((scrollingDown && firstItemIndex < this.firstItemIndex) ||
                 (!scrollingDown && this.scrollPosition - scrollTop > 100)) {
-                const scrollBottomHeight = this.bodyElement.scrollHeight - scrollTop;
 
-                if (scrollBottom - scrollTop <= this.baseRowHeight) {
-                    this.firstItemIndex = this.totalRecords - 1;
-                } else if (scrollTop < scrollBottomHeight) {
+                if (scrollTop < scrollBottomHeight) {
                     this.firstItemIndex = Math.floor(scrollTop / this.baseRowHeight);
                 } else {
                     this.firstItemIndex = this.totalRecords - Math.floor(scrollBottomHeight / this.baseRowHeight);
                 }
 
-                this.lastIndexIndex = this.firstItemIndex + 20;
-                heightOffset = this.bodyElement.scrollTop;
+                if (scrollBottom < lastHeight) {
+                    heightOffset = this.innerData.last().heightOffset;
+                    this.firstItemIndex = Math.max(0, firstItemIndex - this.scrollBuffer);
+                    console.log(`last height: ${this.bodyElement.scrollHeight - this.bodyElement.scrollTop}`);
+                } else {
+                    const bufferedHeight = this.bodyElement.scrollTop > (this.scrollBuffer * this.baseRowHeight)
+                        ? (this.scrollBuffer * this.baseRowHeight)
+                        : 0;
 
-                console.log(`Item: ${Math.floor(this.bodyElement.scrollTop / this.baseRowHeight + this.scrollBuffer)}`);
+                    heightOffset = this.bodyElement.scrollTop - bufferedHeight;
+                }
+
+                this.lastIndexIndex = this.firstItemIndex + 20;
             } else {
                 this.firstItemIndex = firstItemIndex;
                 this.lastIndexIndex = lastItemIndex;
@@ -577,11 +570,12 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 }
 
 export class DomHelper {
-    static getVisibleItemBounds(container: any,
-                                itemsLength: number,
-                                itemHeight: number,
-                                itemBuffer: number,
-                                innerData: Map<string, RowData>): {firstItemIndex: number, lastItemIndex: number} {
+    public static getVisibleItemBounds(container: any,
+                                       itemsLength: number,
+                                       itemHeight: number,
+                                       itemBuffer: number,
+                                       innerData: Map<RowData>,
+                                       scrollingDown = false): {firstItemIndex: number, lastItemIndex: number} {
         if (!container || !itemHeight || !itemsLength) {
             return;
         }
@@ -638,7 +632,7 @@ export class DomHelper {
         }
 
         if (firstItemIndex === undefined) {
-            firstItemIndex = 1 + itemBuffer;
+            firstItemIndex = itemBuffer;
         }
 
         if (!lastItemFound) {
@@ -653,18 +647,18 @@ export class DomHelper {
         };
     }
 
-    static addClassToElement(element: Element, ...cssClass: string[]): Element {
+    public static addClassToElement(element: Element, ...cssClass: string[]): Element {
         element.classList.add(...cssClass);
         return element;
     }
 
-    static addClassToChild(element: Element, selector: string, ...cssClass: string[]): Element {
+    public static addClassToChild(element: Element, selector: string, ...cssClass: string[]): Element {
         const child: Element = element.querySelector(selector);
         element.classList.add(...cssClass);
         return child;
     }
 
-    static addClassToChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
+    public static addClassToChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
         const elements = element.querySelectorAll(selector);
 
         if (elements) {
@@ -674,18 +668,18 @@ export class DomHelper {
         return elements;
     }
 
-    static removeClassFromElement(element: Element, ...cssClass: string[]): Element {
+    public static removeClassFromElement(element: Element, ...cssClass: string[]): Element {
         element.classList.remove(...cssClass);
         return element;
     }
 
-    static removeClassFromChild(element: Element, selector: string, ...cssClass: string[]): Element {
+    public static removeClassFromChild(element: Element, selector: string, ...cssClass: string[]): Element {
         const child: Element = element.querySelector(selector);
         element.classList.remove(...cssClass);
         return child;
     }
 
-    static removeClassFromChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
+    public static removeClassFromChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
         const elements = element.querySelectorAll(selector);
 
         if (elements) {
@@ -695,7 +689,7 @@ export class DomHelper {
         return elements;
     }
 
-    static getElementOffset(element: HTMLElement): {top: number, left: number} {
+    public static getElementOffset(element: HTMLElement): {top: number, left: number} {
         let top = 0, left = 0;
         do {
             top += element.offsetTop || 0;
@@ -709,13 +703,13 @@ export class DomHelper {
         };
     }
 
-    static setElementStyle(element: HTMLElement, styles: any): HTMLElement {
+    public static setElementStyle(element: HTMLElement, styles: any): HTMLElement {
         Object.assign(element.style, styles);
 
         return element;
     }
 
-    static setChildrenStyle(element: HTMLElement, selector: string, styles: any): NodeListOf<HTMLElement> {
+    public static setChildrenStyle(element: HTMLElement, selector: string, styles: any): NodeListOf<HTMLElement> {
         const elements: any = element.querySelectorAll(selector);
 
         if (elements) {
@@ -725,7 +719,7 @@ export class DomHelper {
         return elements;
     }
 
-    static getTopFromWindow(element: HTMLElement) {
+    public static getTopFromWindow(element: HTMLElement) {
         if (typeof element === "undefined" || !element) {
             return 0;
         }
@@ -733,7 +727,7 @@ export class DomHelper {
         return (element.offsetTop || 0) + DomHelper.getTopFromWindow(<HTMLElement>element.offsetParent);
     }
 
-    static getElementTop(element: any) {
+    public static getElementTop(element: any) {
         if (element.pageYOffset) {
             return element.pageYOffset;
         }

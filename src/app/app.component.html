@@ -38,11 +38,10 @@
                          header="Body">
             </grid-column>
         </div>
-        <template #expandTemplate>
-            <p>This</p>
-            <p>is</p>
-            <p>a</p>
-            <p>Test</p>
+        <template #expandTemplate let-rowData="rowData">
+            <pre>
+                {{rowData|json}}
+            </pre>
         </template>
     </app-data-grid>
 

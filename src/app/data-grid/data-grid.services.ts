@@ -1,5 +1,5 @@
 import {Injectable, EventEmitter} from "@angular/core";
-import {ISelectionChangedEvent, Column} from "./data-grid.model";
+import {ISelectionChangedEvent, Column, Map} from "./data-grid.model";
 import {findIndex} from "lodash";
 
 @Injectable()
@@ -9,7 +9,7 @@ export class SelectionService {
 
     public emitSelectionChanged($event: ISelectionChangedEvent): void {
         if (this.identifierProperty && $event.selected && $event.selected instanceof Array) {
-            const map: Map<string, boolean> = new Map();
+            const map = new Map<boolean>();
 
             $event.selected.forEach((item: any) => {
                 map.set(`${item[this.identifierProperty]}`, true);

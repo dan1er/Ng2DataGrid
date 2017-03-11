@@ -1,14 +1,15 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ChangeDetectorRef, AfterViewInit} from "@angular/core";
 import {Http, Response} from "@angular/http";
 import "rxjs/add/operator/map";
 import {LoadNextPageEvent} from "./data-grid/data-grid.model";
+import {range, random} from "lodash";
 
 @Component({
     selector: "app-root",
     templateUrl: "./app.component.html",
     styleUrls: ["app.component.less"]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
     public data: any;
     public selectedRows: any[];
     private dataSet: any[];
@@ -16,7 +17,7 @@ export class AppComponent implements OnInit {
     public emailVisible: boolean = true;
     public initialSelected: any[];
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private changeDetectorRef: ChangeDetectorRef) {
     }
 
     public onLoadNextPage(data: LoadNextPageEvent): void {
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
 
         setTimeout(() => {
             this.data = [...this.data, ...nextPageData];
+            this.changeDetectorRef.detectChanges();
         }, 500);
     }
 
@@ -36,6 +38,14 @@ export class AppComponent implements OnInit {
         this.loadData();
     }
 
+    public ngAfterViewInit(): void {
+        // this.changeDetectorRef.detach();
+    }
+
+    public get optionsCount(): number[] {
+        return range(0, random(3, 10));
+    }
+
     private loadData(): void {
         this.http.get("https://jsonplaceholder.typicode.com/comments")
             .map((response: Response) => {
@@ -43,6 +53,7 @@ export class AppComponent implements OnInit {
 
                 this.data = this.dataSet.slice(0, 500).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
                 this.initialSelected = [this.data[0], this.data[4]];
+                this.changeDetectorRef.detectChanges();
             })
             .subscribe();
     }
