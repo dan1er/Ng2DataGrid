@@ -47,11 +47,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     private loadData(): void {
-        this.http.get("https://jsonplaceholder.typicode.com/comments")
+        this.http.get("https://jsonplaceholder.typicode.com/photos")
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.slice(0, 500).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.data = this.dataSet.map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
                 this.initialSelected = [this.data[0], this.data[4]];
                 this.changeDetectorRef.detectChanges();
             })

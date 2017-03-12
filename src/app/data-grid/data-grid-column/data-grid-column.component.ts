@@ -13,8 +13,7 @@ import {Column} from "../data-grid.model";
 
 @Component({
     selector: "grid-column",
-    template: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    template: ``
 })
 export class GridColumnComponent implements OnChanges, AfterViewInit {
     @Input() public field: string;

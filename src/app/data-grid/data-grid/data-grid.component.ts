@@ -19,7 +19,7 @@ import "rxjs/add/operator/debounceTime";
 import {cloneDeep} from "lodash";
 import {fromEvent} from "rxjs/observable/fromEvent";
 import "rxjs/operator/debounceTime";
-import {SelectionService, ColumnsService} from "../data-grid.services";
+import {SelectionService, ColumnsService, DomHelperService} from "../data-grid.services";
 import {
     RowData,
     RowDragEndedEvent,
@@ -130,7 +130,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     private identifiersLookup: string[];
     private bodyElement: HTMLDivElement;
-    private scrollContainer: HTMLDivElement;
+    private listContainer: HTMLDivElement;
     private scrollSizer: HTMLDivElement;
     private scrollerHeight: number = 0;
     private scrollerInitialized: boolean;
@@ -152,7 +152,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                 private changeDetector: ChangeDetectorRef,
                 private zone: NgZone,
                 private selectionService: SelectionService,
-                private columnsService: ColumnsService) {
+                private columnsService: ColumnsService,
+                private domHelperService: DomHelperService) {
     }
 
     public ngOnInit(): void {
@@ -172,7 +173,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         this.selectionService.identifierProperty = this.identifierProperty;
 
         this.bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
-        this.scrollContainer = this.element.nativeElement.querySelector("div.data-table-body-data-container");
+        this.listContainer = this.element.nativeElement.querySelector("div.data-table-body-data-container");
         this.scrollSizer = this.element.nativeElement.querySelector("div.scroller");
 
         this.subscribeToBodyScrolling();
@@ -212,12 +213,14 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                 this.baseRowHeight = $event.currentValue;
                 this.scrollerInitialized = true;
 
-                const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
+                const {firstItemIndex, lastItemIndex} = this.domHelperService.getVisibleItemBounds(
                     this.bodyElement,
-                    this.data.length,
-                    $event.currentValue,
+                    this.baseRowHeight,
                     this.scrollBuffer,
-                    this.innerData);
+                    this.innerData,
+                    this.identifiersLookup,
+                    false,
+                    this.totalRecords);
 
                 this.firstItemIndex = firstItemIndex;
                 this.lastIndexIndex = lastItemIndex;
@@ -234,7 +237,6 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                     this.setHeightOffset($event.rowData.rowIndex);
                 }
             }
-            // this.scrollContainer.style.height = `${this.scrollerHeight}px`;
             this.scrollSizer.style.height = `${this.scrollerHeight}px`;
         }
     }
@@ -339,7 +341,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     public onResize($event: MouseEvent): void {
         const columnIndex = (<HTMLDivElement>$event.currentTarget).getAttribute("column_index");
 
-        DomHelper.addClassToChildren(
+        this.domHelperService.addClassToChildren(
             this.element.nativeElement,
             `.column_${columnIndex}`,
             "column-resizing"
@@ -361,7 +363,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     public onDocumentMouseMoved($event: MouseEvent): void {
         if (this.resizing) {
             if ($event.buttons) {
-                const offset = DomHelper.getElementOffset(this.resizedElement);
+                const offset = this.domHelperService.getElementOffset(this.resizedElement);
                 if ($event.clientX >= offset.left + 20) {
                     const width = $event.clientX - offset.left;
 
@@ -370,8 +372,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                         width: `${width}px`
                     };
 
-                    DomHelper.setElementStyle(this.resizedElement, styles);
-                    DomHelper.setChildrenStyle(this.element.nativeElement, `.column_${this.resizedColumnIndex}`, styles);
+                    this.domHelperService.setElementStyle(this.resizedElement, styles);
+                    this.domHelperService.setChildrenStyle(this.element.nativeElement, `.column_${this.resizedColumnIndex}`, styles);
                 }
             } else {
                 this.clearResizingData();
@@ -387,7 +389,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     }
 
     private clearResizingData(): void {
-        DomHelper.removeClassFromChildren(
+        this.domHelperService.removeClassFromChildren(
             this.element.nativeElement,
             `.column_${this.resizedColumnIndex}`,
             "column-resizing"
@@ -506,56 +508,23 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             this.heightOffsetInitialized = true;
         }
 
-        const {firstItemIndex, lastItemIndex} = DomHelper.getVisibleItemBounds(
+        const {firstItemIndex, lastItemIndex, heightOffset} = this.domHelperService.getVisibleItemBounds(
             this.bodyElement,
-            this.data.length,
-            this.innerData.get(this.identifiersLookup[this.firstItemIndex]).rowHeight,
+            this.baseRowHeight,
             this.scrollBuffer,
             this.innerData,
-            scrollingDown);
+            this.identifiersLookup,
+            scrollingDown,
+            this.totalRecords);
 
         if (this.firstItemIndex !== firstItemIndex || this.lastIndexIndex !== lastItemIndex) {
-            let heightOffset = 0;
-
-            const scrollTop = this.bodyElement.scrollTop,
-                scrollBottom = this.bodyElement.scrollHeight - this.bodyElement.scrollTop - this.bodyElement.clientHeight,
-                lastHeight = this.innerData.last().rowHeight;
-
-            const scrollBottomHeight = this.bodyElement.scrollHeight - scrollTop;
-
-            if ((scrollingDown && firstItemIndex < this.firstItemIndex) ||
-                (!scrollingDown && this.scrollPosition - scrollTop > 100)) {
-
-                if (scrollTop < scrollBottomHeight) {
-                    this.firstItemIndex = Math.floor(scrollTop / this.baseRowHeight);
-                } else {
-                    this.firstItemIndex = this.totalRecords - Math.floor(scrollBottomHeight / this.baseRowHeight);
-                }
-
-                if (scrollBottom < lastHeight) {
-                    heightOffset = this.innerData.last().heightOffset;
-                    this.firstItemIndex = Math.max(0, firstItemIndex - this.scrollBuffer);
-                    console.log(`last height: ${this.bodyElement.scrollHeight - this.bodyElement.scrollTop}`);
-                } else {
-                    const bufferedHeight = this.bodyElement.scrollTop > (this.scrollBuffer * this.baseRowHeight)
-                        ? (this.scrollBuffer * this.baseRowHeight)
-                        : 0;
-
-                    heightOffset = this.bodyElement.scrollTop - bufferedHeight;
-                }
-
-                this.lastIndexIndex = this.firstItemIndex + 20;
-            } else {
-                this.firstItemIndex = firstItemIndex;
-                this.lastIndexIndex = lastItemIndex;
-
-                heightOffset = this.innerData.get(this.identifiersLookup[this.firstItemIndex]).heightOffset;
-            }
+            this.firstItemIndex = firstItemIndex;
+            this.lastIndexIndex = lastItemIndex;
 
             this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
             this.changeDetector.markForCheck();
 
-            this.scrollContainer.style.transform = `translateY(${heightOffset}px)`;
+            this.listContainer.style.transform = `translateY(${heightOffset}px)`;
         }
         this.scrollPosition = this.bodyElement.scrollTop;
     }
@@ -566,184 +535,5 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                 previous = i > 0 && this.innerData.get(this.identifiersLookup[i - 1]);
             current.heightOffset = (previous ? previous.heightOffset + (previous.rowHeight || this.baseRowHeight) : 0);
         }
-    }
-}
-
-export class DomHelper {
-    public static getVisibleItemBounds(container: any,
-                                       itemsLength: number,
-                                       itemHeight: number,
-                                       itemBuffer: number,
-                                       innerData: Map<RowData>,
-                                       scrollingDown = false): {firstItemIndex: number, lastItemIndex: number} {
-        if (!container || !itemHeight || !itemsLength) {
-            return;
-        }
-
-        const innerHeight = container.innerHeight,
-            clientHeight = container.clientHeight;
-
-
-        const viewHeight = innerHeight || clientHeight;
-
-        if (!viewHeight) {
-            return;
-        }
-
-        let current: HTMLElement,
-            firstItemIndex: number,
-            lastItemIndex: number,
-            firstItemFound: boolean = false,
-            lastItemFound: boolean = false;
-
-        const rows = container.querySelectorAll("data-grid-row");
-
-        if (rows) {
-            for (let i = 0; i < rows.length; i++) {
-                current = <HTMLElement>rows[i];
-
-                const identifier = current.getAttribute("data-identifier"),
-                    rowData: RowData = innerData.get(identifier);
-
-                if (rowData) {
-                    const containerBoundaries = container.getBoundingClientRect(),
-                        rowBoundaries = current.getBoundingClientRect();
-
-                    const containerTop = containerBoundaries.top,
-                        containerBottom = containerBoundaries.top + containerBoundaries.height,
-                        rowTop = rowBoundaries.top,
-                        rowBottom = rowBoundaries.top
-                            + rowBoundaries.height;
-
-                    if (!firstItemFound) {
-                        if (rowBottom >= containerTop) {
-                            firstItemIndex = rowData.rowIndex;
-                            firstItemFound = true;
-                        }
-                    } else {
-                        if (rowTop <= containerBottom && rowBottom >= containerBottom) {
-                            lastItemIndex = rowData.rowIndex;
-                            lastItemFound = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (firstItemIndex === undefined) {
-            firstItemIndex = itemBuffer;
-        }
-
-        if (!lastItemFound) {
-            lastItemIndex = firstItemIndex + 20;
-        }
-
-        console.log(`first: ${firstItemIndex} - last: ${lastItemIndex}`);
-
-        return {
-            firstItemIndex: Math.max(0, firstItemIndex - itemBuffer),
-            lastItemIndex: Math.max(0, lastItemIndex + itemBuffer)
-        };
-    }
-
-    public static addClassToElement(element: Element, ...cssClass: string[]): Element {
-        element.classList.add(...cssClass);
-        return element;
-    }
-
-    public static addClassToChild(element: Element, selector: string, ...cssClass: string[]): Element {
-        const child: Element = element.querySelector(selector);
-        element.classList.add(...cssClass);
-        return child;
-    }
-
-    public static addClassToChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
-        const elements = element.querySelectorAll(selector);
-
-        if (elements) {
-            (<any>elements).forEach((el: Element) => el.classList.add("column-resizing"));
-        }
-
-        return elements;
-    }
-
-    public static removeClassFromElement(element: Element, ...cssClass: string[]): Element {
-        element.classList.remove(...cssClass);
-        return element;
-    }
-
-    public static removeClassFromChild(element: Element, selector: string, ...cssClass: string[]): Element {
-        const child: Element = element.querySelector(selector);
-        element.classList.remove(...cssClass);
-        return child;
-    }
-
-    public static removeClassFromChildren(element: Element, selector: string, ...cssClass: string[]): NodeListOf<Element> {
-        const elements = element.querySelectorAll(selector);
-
-        if (elements) {
-            (<any>elements).forEach((el: Element) => el.classList.remove("column-resizing"));
-        }
-
-        return elements;
-    }
-
-    public static getElementOffset(element: HTMLElement): {top: number, left: number} {
-        let top = 0, left = 0;
-        do {
-            top += element.offsetTop || 0;
-            left += element.offsetLeft || 0;
-            element = <HTMLElement>element.offsetParent;
-        } while (element);
-
-        return {
-            top: top,
-            left: left
-        };
-    }
-
-    public static setElementStyle(element: HTMLElement, styles: any): HTMLElement {
-        Object.assign(element.style, styles);
-
-        return element;
-    }
-
-    public static setChildrenStyle(element: HTMLElement, selector: string, styles: any): NodeListOf<HTMLElement> {
-        const elements: any = element.querySelectorAll(selector);
-
-        if (elements) {
-            (<any>elements).forEach((el: HTMLElement) => Object.assign(el.style, styles));
-        }
-
-        return elements;
-    }
-
-    public static getTopFromWindow(element: HTMLElement) {
-        if (typeof element === "undefined" || !element) {
-            return 0;
-        }
-
-        return (element.offsetTop || 0) + DomHelper.getTopFromWindow(<HTMLElement>element.offsetParent);
-    }
-
-    public static getElementTop(element: any) {
-        if (element.pageYOffset) {
-            return element.pageYOffset;
-        }
-
-        if (element.document) {
-            if (element.document.documentElement && element.document.documentElement.scrollTop) {
-                return element.document.documentElement.scrollTop;
-            }
-
-            if (element.document.body && element.document.body.scrollTop) {
-                return element.document.body.scrollTop;
-            }
-
-            return 0;
-        }
-
-        return element.scrollY || element.scrollTop || 0;
     }
 }

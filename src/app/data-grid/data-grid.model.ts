@@ -107,4 +107,8 @@ export class Map<T> {
     public last(): T {
         return this._last;
     }
+
+    public size(): number {
+        return this.keys().length;
+    }
 }

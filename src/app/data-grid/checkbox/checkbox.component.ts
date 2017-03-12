@@ -24,8 +24,7 @@ import {ISelectionChangedEvent, Map} from "../data-grid.model";
             </div>
         </div>
     `,
-    styleUrls: ["checkbox.component.less"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ["checkbox.component.less"]
 })
 export default class CheckboxComponent implements OnInit, OnDestroy, AfterViewInit {
     @Input() public displayAsRadio: boolean;

@@ -1,10 +1,10 @@
 <button (click)="allowReorderRows = !allowReorderRows">Toggle Allow Reorder!</button>
-<button (click)="emailVisible = !emailVisible">Toggle Email Column!</button>
+<button (click)="urlVisible = !urlVisible">Toggle Url Column!</button>
 
 <div class="content">
     <app-data-grid [data]="data"
                    [rowsPerPage]="5"
-                   [totalRecords]="500"
+                   [totalRecords]="5000"
                    identifierProperty="id"
                    selectionMode="multiple"
                    rowMarkField="rowMarkData"
@@ -15,27 +15,24 @@
                    (onSelectionChanged)="onSelectionChanged($event)"
                    (onLoadNextPage)="onLoadNextPage($event)">
         <div>
+            <grid-column field="id"
+                         width="50px">
+            </grid-column>
             <grid-column width="60px"
                          resizable="false"
                          [template]="columnTemplate">
-                <template #columnTemplate>
-                    <img src="http://fakeimg.pl/50x50/?text=Test">
-                    {{rowData}}
+                <template #columnTemplate let-rowData="rowData">
+                    <img [src]="rowData.thumbnailUrl" width="60" height="60">
                 </template>
             </grid-column>
-            <grid-column field="name"
-                         header="Name"
-                         width="200px"
-                         sortField="name">
+            <grid-column field="title"
+                         header="Title"
+                         sortField="title">
             </grid-column>
-            <grid-column field="email"
-                         header="Email"
-                         width="150px"
-                         [visible]="emailVisible"
-                         sortField="person.email">
-            </grid-column>
-            <grid-column field="body"
-                         header="Body">
+            <grid-column field="url"
+                         header="Url"
+                         [visible]="urlVisible"
+                         sortField="url">
             </grid-column>
         </div>
         <template #expandTemplate let-rowData="rowData">

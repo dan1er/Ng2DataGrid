@@ -41,7 +41,10 @@ import {RowData, RowDragEndedEvent, RowMarkData, Column, RowHeightChangedEvent} 
                    [ngStyle]="{flex: !column.width ? 1: '', width: column.width}"
                    *ngFor="let column of columns; let i = index">
                   <div *ngIf="!column.template" class="column-content">{{rowData.data[column.field]}}</div>
-                  <template [ngIf]="column.template" [ngTemplateOutlet]="column.template"></template>
+                  <template [ngIf]="column.template" 
+                            [ngTemplateOutlet]="column.template" 
+                            [ngOutletContext]="{rowData: rowData.data}">
+                  </template>
               </div>
               <div *ngIf="expandTemplate" 
                    class="column column-expand"
@@ -55,8 +58,7 @@ import {RowData, RowDragEndedEvent, RowMarkData, Column, RowHeightChangedEvent} 
           </div>
       </div>
   `,
-    styleUrls: ["./data-grid-row.component.less"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ["./data-grid-row.component.less"]
 })
 export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly columns: Column[];
