@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     public onLoadNextPage(data: LoadNextPageEvent): void {
         const nextPageData = this.dataSet.slice(data.from, data.from + data.rowsPerPage)
             .map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
-
+        console.log("next page");
         setTimeout(() => {
             this.data = [...this.data, ...nextPageData];
             this.changeDetectorRef.detectChanges();
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.slice(0, 5000).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.data = this.dataSet.slice(0, 20).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
                 this.initialSelected = [this.data[0], this.data[4]];
                 this.changeDetectorRef.detectChanges();
             })

@@ -86,10 +86,9 @@ export type SelectionMode = "single" | "multiple";
                             </data-grid-row>
                         </template>
                     </div>
-                    <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
                 </div>
-                <div *ngIf="false" class="data-table-footer">
-                </div>
+                <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
+                <div *ngIf="false" class="data-table-footer"></div>
             </div>
     `,
     styleUrls: ["data-grid.component.less"]
@@ -143,7 +142,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private bodyScrollingSubscription$: Subscription;
 
     private firstItemIndex: number = 0;
-    private lastIndexIndex: number = 15;
+    private lastItemIndex: number = 15;
     private scrollBuffer: number;
     private scrollPosition: number = 0;
     private baseRowHeight: number = 0;
@@ -182,7 +181,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes["data"]) {
-            this.processData(changes["data"].currentValue);
+            this.processData();
         }
 
         if (changes["selected"]) {
@@ -209,7 +208,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     public onRowHeightChanged($event: RowHeightChangedEvent): void {
         if ($event) {
             if (!this.scrollerInitialized) {
-                this.scrollerHeight = $event.currentValue * (this.totalRecords || this.data.length);
+                this.scrollerHeight = $event.currentValue * this.data.length;
                 this.baseRowHeight = $event.currentValue;
                 this.scrollerInitialized = true;
 
@@ -220,10 +219,10 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                     this.innerData,
                     this.identifiersLookup,
                     false,
-                    this.totalRecords);
+                    this.data.length);
 
                 this.firstItemIndex = firstItemIndex;
-                this.lastIndexIndex = lastItemIndex;
+                this.lastItemIndex = lastItemIndex;
             }
 
             if ($event.previousValue) {
@@ -412,15 +411,16 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             });
     }
 
-    private processData(data: any[]): void {
+    private processData(): void {
         if (this.allSelected) {
-            this.selected = data;
+            this.selected = this.data;
         }
 
         const newMap: Map<RowData> = new Map();
         this.identifiersLookup = [];
 
-        let index = 0;
+        let index = 0,
+            scrollerHeight = 0;
         (this.data || []).forEach((item: any) => {
             const itemIdentifier = `${item[this.identifierProperty]}`;
 
@@ -428,6 +428,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                 const el = this.innerData.get(itemIdentifier);
                 el.data = item;
                 newMap.set(itemIdentifier, el);
+                scrollerHeight += el.rowHeight || this.baseRowHeight;
             } else {
                 const identifier = itemIdentifier;
                 newMap.set(
@@ -438,6 +439,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                         data: item,
                         rowIndex: index++
                     });
+                scrollerHeight += this.baseRowHeight;
             }
 
             this.identifiersLookup.push(itemIdentifier);
@@ -445,9 +447,22 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
         this.innerData = newMap;
 
+        if (this.scrollSizer && this.firstItemIndex) {
+            const itemsPerContainer: number = Math.ceil(this.bodyElement.clientHeight / this.baseRowHeight);
+
+            console.log(`scroll: ${this.scrollerHeight}, scrollTop: ${this.bodyElement.scrollTop}`);
+            this.scrollerHeight = scrollerHeight;
+
+            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
+
+            this.firstItemIndex = Math.max(0, this.scrollerHeight / this.baseRowHeight);
+            this.lastItemIndex = this.firstItemIndex + itemsPerContainer + this.scrollBuffer;
+            console.log(`scroll: ${this.scrollerHeight}, scrollTop: ${this.bodyElement.scrollTop}`);
+        }
+
         this.isLoading = false;
 
-        this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
+        this.setDisplayData(this.firstItemIndex, this.lastItemIndex);
     }
 
     private markSelected(): void {
@@ -515,13 +530,13 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             this.innerData,
             this.identifiersLookup,
             scrollingDown,
-            this.totalRecords);
+            this.data.length);
 
-        if (this.firstItemIndex !== firstItemIndex || this.lastIndexIndex !== lastItemIndex) {
+        if (this.firstItemIndex !== firstItemIndex || this.lastItemIndex !== lastItemIndex) {
             this.firstItemIndex = firstItemIndex;
-            this.lastIndexIndex = lastItemIndex;
+            this.lastItemIndex = lastItemIndex;
 
-            this.setDisplayData(this.firstItemIndex, this.lastIndexIndex);
+            this.setDisplayData(this.firstItemIndex, this.lastItemIndex);
             this.changeDetector.markForCheck();
 
             this.listContainer.style.transform = `translateY(${heightOffset}px)`;

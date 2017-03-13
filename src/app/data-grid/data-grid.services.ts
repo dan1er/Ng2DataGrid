@@ -102,7 +102,7 @@ export class DomHelperService {
             } else {
                 const scrollTop = container.scrollTop,
                     firstHeight = data.get(identifiersLookup[0]).rowHeight,
-                    lastHeight = data.last().rowHeight;
+                    lastHeight = data.last().rowHeight || rowHeight;
 
                 const scrollBottomHeight = container.scrollHeight - scrollTop - container.clientHeight;
 
