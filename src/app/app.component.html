@@ -1,9 +1,10 @@
 <button (click)="allowReorderRows = !allowReorderRows">Toggle Allow Reorder!</button>
 <button (click)="urlVisible = !urlVisible">Toggle Url Column!</button>
 
+{{totalRecords}}
 <div class="content">
     <app-data-grid [data]="data"
-                   [rowsPerPage]="5"
+                   [rowsPerPage]="10"
                    [totalRecords]="5000"
                    identifierProperty="id"
                    selectionMode="multiple"

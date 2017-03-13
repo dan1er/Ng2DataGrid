@@ -9,7 +9,6 @@ import {
     NgZone,
     OnChanges,
     SimpleChanges,
-    ChangeDetectionStrategy,
     ChangeDetectorRef,
     AfterViewInit,
     HostBinding
@@ -110,6 +109,10 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
                     this.draggingSubscribersInitialized = false;
                 }
             }
+        }
+
+        if (changes["columns"]) {
+            this.changeDetector.detectChanges();
         }
     }
 
@@ -225,10 +228,10 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     private trySetRowHeightAndNotify(): void {
+        this.changeDetector.detectChanges();
+
         const style = window.getComputedStyle(this.el.nativeElement),
             currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
-
-        this.changeDetector.detectChanges();
 
         if (this.rowData.rowHeight !== currentHeight) {
             const previousHeight = this.rowData.rowHeight || 0;

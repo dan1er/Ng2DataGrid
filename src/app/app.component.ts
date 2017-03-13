@@ -12,10 +12,11 @@ import {range, random} from "lodash";
 export class AppComponent implements OnInit, AfterViewInit {
     public data: any;
     public selectedRows: any[];
-    private dataSet: any[];
     public allowReorderRows: boolean = true;
-    public emailVisible: boolean = true;
     public initialSelected: any[];
+    public totalRecords: number = 5000;
+    public urlVisible: boolean = true;
+    private dataSet: any[];
 
     constructor(private http: Http, private changeDetectorRef: ChangeDetectorRef) {
     }
@@ -51,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.data = this.dataSet.slice(0, 5000).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
                 this.initialSelected = [this.data[0], this.data[4]];
                 this.changeDetectorRef.detectChanges();
             })

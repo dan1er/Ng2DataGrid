@@ -1,13 +1,4 @@
-import {
-    Component,
-    Input,
-    TemplateRef,
-    ChangeDetectionStrategy,
-    OnChanges,
-    SimpleChanges,
-    ChangeDetectorRef,
-    AfterViewInit
-} from "@angular/core";
+import {Component, Input, TemplateRef, OnChanges, SimpleChanges, ChangeDetectorRef, AfterViewInit} from "@angular/core";
 import {ColumnsService} from "../data-grid.services";
 import {Column} from "../data-grid.model";
 
