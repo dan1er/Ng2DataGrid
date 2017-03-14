@@ -78,7 +78,7 @@ export type SelectionMode = "single" | "multiple";
                                            [rowMarkField]="rowMarkField"
                                            [allowRowsReorder]="allowRowsReorder"
                                            [relocatedStyles]="relocatedStyles"
-                                           [enableVirtualScroll]="virtualScrollingEnabled"
+                                           [virtualScrollingEnabled]="virtualScrollingEnabled"
                                            [initializeSelected]="allSelected || innerData.get(key).selected"
                                            [height]="baseRowHeight"
                                            (onRowSelectionChanged)="onRowSelectionChanged($event)"
@@ -88,7 +88,7 @@ export type SelectionMode = "single" | "multiple";
                         </template>
                     </div>
                 </div>
-                <data-grid-spinner *ngIf="isLoading" [class.center]="virtualScrollingEnabled"></data-grid-spinner>
+                <data-grid-spinner *ngIf="isLoading" [class.centered]="isSpinnerCentered"></data-grid-spinner>
                 <div *ngIf="false" class="data-table-footer"></div>
             </div>
     `,
@@ -205,6 +205,10 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
             this.markSelected();
             this.rowsInitialized = true;
         }
+    }
+
+    public get isSpinnerCentered(): boolean {
+        return this.isLoading && !this.data.length;
     }
 
     public onRowHeightChanged($event: RowHeightChangedEvent): void {
@@ -521,7 +525,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private processScroll(): void {
         if (!this.isLoading) {
             const scrollingDown: boolean = this.bodyElement.scrollTop >= this.scrollPosition;
-            console.log(this.bodyElement.scrollTop);
+
             if (!this.heightOffsetInitialized) {
                 this.setHeightOffset(0);
                 this.heightOffsetInitialized = true;

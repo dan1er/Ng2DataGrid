@@ -142,7 +142,7 @@ export class DomHelperService {
                 }
             }
         }
-        console.log(`${firstItemIndex} - ${lastItemIndex} - ${heightOffset}`);
+
         return {
             firstItemIndex,
             lastItemIndex,

@@ -72,7 +72,7 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly allowRowsReorder: string;
     @Input() public readonly relocatedStyles: string[];
     @Input() public initializeSelected: boolean;
-    @Input() public enableVirtualScroll: boolean;
+    @Input() public virtualScrollingEnabled: boolean;
     @Input() public height: number;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public onRowDragEnded: EventEmitter<RowDragEndedEvent> = new EventEmitter();
@@ -126,7 +126,7 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     public ngAfterViewInit(): void {
         this.changeDetector.detach();
 
-        if (this.enableVirtualScroll) {
+        if (this.virtualScrollingEnabled) {
             this.trySetRowHeightAndNotify();
         }
     }
@@ -144,7 +144,11 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     public toggleExpanded(): void {
         this.rowData.expanded = !this.rowData.expanded;
 
-        setTimeout(() => this.trySetRowHeightAndNotify());
+        this.changeDetector.detectChanges();
+
+        if (this.virtualScrollingEnabled) {
+            setTimeout(() => this.trySetRowHeightAndNotify());
+        }
     }
 
     public onColumnsRowClicked(): void {
