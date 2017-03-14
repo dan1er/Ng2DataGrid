@@ -78,8 +78,9 @@ export type SelectionMode = "single" | "multiple";
                                            [rowMarkField]="rowMarkField"
                                            [allowRowsReorder]="allowRowsReorder"
                                            [relocatedStyles]="relocatedStyles"
-                                           [enableVirtualScroll]="true"
+                                           [enableVirtualScroll]="virtualScrollingEnabled"
                                            [initializeSelected]="allSelected || innerData.get(key).selected"
+                                           [height]="baseRowHeight"
                                            (onRowSelectionChanged)="onRowSelectionChanged($event)"
                                            (onRowDragEnded)="onRowDragEnded($event)"
                                            (onRowHeightChanged)="onRowHeightChanged($event)">
@@ -87,7 +88,7 @@ export type SelectionMode = "single" | "multiple";
                         </template>
                     </div>
                 </div>
-                <data-grid-spinner *ngIf="isLoading"></data-grid-spinner>
+                <data-grid-spinner *ngIf="isLoading" [class.center]="virtualScrollingEnabled"></data-grid-spinner>
                 <div *ngIf="false" class="data-table-footer"></div>
             </div>
     `,
@@ -105,6 +106,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     @Input() public readonly rowMarkField: string;
     @Input() public readonly allowRowsReorder: string;
     @Input() public readonly relocatedStyles: string[];
+    @Input() public readonly virtualScrollingEnabled: string[];
     @Output() public onAllSelected: EventEmitter<any> = new EventEmitter();
     @Output() public onSelectionChanged: EventEmitter<any[]> = new EventEmitter();
     @Output() public onSortChanged: EventEmitter<SortChangedEvent> = new EventEmitter();
@@ -119,6 +121,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     public resizedColumnIndex: string;
 
     public rowsInitialized: boolean;
+    public baseRowHeight: number = 0;
 
     public columns: Column[];
     public innerData: Map<RowData>;
@@ -145,7 +148,6 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     private lastItemIndex: number = 15;
     private scrollBuffer: number;
     private scrollPosition: number = 0;
-    private baseRowHeight: number = 0;
 
     constructor(private element: ElementRef,
                 private changeDetector: ChangeDetectorRef,
@@ -236,7 +238,7 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                     this.setHeightOffset($event.rowData.rowIndex);
                 }
             }
-            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
+            this.setScrollerSize(this.scrollerHeight);
         }
     }
 
@@ -245,7 +247,11 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     }
 
     public setDisplayData(from: number, to: number): void {
-        this.displayData = this.identifiersLookup.slice(from, to + 1);
+        if (this.virtualScrollingEnabled) {
+            this.displayData = this.identifiersLookup.slice(from, to + 1);
+        } else {
+            this.displayData = this.identifiersLookup;
+        }
 
         this.changeDetector.detectChanges();
     }
@@ -399,16 +405,36 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         this.resizedColumnIndex = null;
     }
 
-    private subscribeToBodyScrolling(): void {
-        const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
-
-        this.bodyScrollingSubscription$ = fromEvent(bodyElement, "scroll")
-            .subscribe(() => {
-                if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
-                    this.tryNotifyLoadPage();
+    private markSelected(): void {
+        if (this.selected && Array.isArray(this.selected)) {
+            this.selected.forEach((item: any) => {
+                const identifier = `${item[this.identifierProperty]}`;
+                if (this.innerData.has(identifier)) {
+                    const row = this.innerData.get(identifier);
+                    row.selected = true;
                 }
-                this.processScroll();
             });
+
+            if (this.allSelected) {
+                this.selectionService.emitSelectionChanged({
+                    allSelected: true
+                });
+            } else {
+                this.selectionService.emitSelectionChanged({
+                    selected: this.selected
+                });
+            }
+        }
+    }
+
+    private regenerateInnerDataFromRowsData(data: RowData[]): void {
+        const map: Map<RowData> = new Map();
+
+        (data || []).forEach((row: RowData) => map.set(row.identifier, row));
+
+        this.innerData = map;
+
+        this.changeDetector.detectChanges();
     }
 
     private processData(): void {
@@ -447,17 +473,9 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
 
         this.innerData = newMap;
 
-        if (this.scrollSizer && this.firstItemIndex) {
-            const itemsPerContainer: number = Math.ceil(this.bodyElement.clientHeight / this.baseRowHeight);
-
-            console.log(`scroll: ${this.scrollerHeight}, scrollTop: ${this.bodyElement.scrollTop}`);
-            this.scrollerHeight = scrollerHeight;
-
-            this.scrollSizer.style.height = `${this.scrollerHeight}px`;
-
-            this.firstItemIndex = Math.max(0, this.scrollerHeight / this.baseRowHeight);
-            this.lastItemIndex = this.firstItemIndex + itemsPerContainer + this.scrollBuffer;
-            console.log(`scroll: ${this.scrollerHeight}, scrollTop: ${this.bodyElement.scrollTop}`);
+        if (this.virtualScrollingEnabled && this.scrollSizer && this.firstItemIndex) {
+            this.scrollerHeight = scrollerHeight - this.scrollBuffer * this.baseRowHeight;
+            this.setScrollerSize(this.scrollerHeight);
         }
 
         this.isLoading = false;
@@ -465,36 +483,19 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
         this.setDisplayData(this.firstItemIndex, this.lastItemIndex);
     }
 
-    private markSelected(): void {
-        if (this.selected && Array.isArray(this.selected)) {
-            this.selected.forEach((item: any) => {
-                const identifier = `${item[this.identifierProperty]}`;
-                if (this.innerData.has(identifier)) {
-                    const row = this.innerData.get(identifier);
-                    row.selected = true;
+    private subscribeToBodyScrolling(): void {
+        const bodyElement = this.element.nativeElement.querySelector("div.data-table-body");
+
+        this.bodyScrollingSubscription$ = fromEvent(bodyElement, "scroll")
+            .subscribe(() => {
+                if (bodyElement.scrollTop + bodyElement.clientHeight === bodyElement.scrollHeight) {
+                    this.tryNotifyLoadPage();
+                }
+
+                if (this.virtualScrollingEnabled) {
+                    this.processScroll();
                 }
             });
-
-            if (this.allSelected) {
-                this.selectionService.emitSelectionChanged({
-                    allSelected: true
-                });
-            } else {
-                this.selectionService.emitSelectionChanged({
-                    selected: this.selected
-                });
-            }
-        }
-    }
-
-    private regenerateInnerDataFromRowsData(data: RowData[]): void {
-        const map: Map<RowData> = new Map();
-
-        (data || []).forEach((row: RowData) => map.set(row.identifier, row));
-
-        this.innerData = map;
-
-        this.changeDetector.detectChanges();
     }
 
     private tryNotifyLoadPage(): void {
@@ -503,6 +504,8 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
                 ++this.currentPage;
 
                 this.isLoading = true;
+
+                this.changeDetector.detectChanges();
 
                 this.onLoadNextPage.emit({
                     page: this.currentPage,
@@ -516,32 +519,46 @@ export class DataGridComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     }
 
     private processScroll(): void {
-        const scrollingDown: boolean = this.bodyElement.scrollTop >= this.scrollPosition;
+        if (!this.isLoading) {
+            const scrollingDown: boolean = this.bodyElement.scrollTop >= this.scrollPosition;
+            console.log(this.bodyElement.scrollTop);
+            if (!this.heightOffsetInitialized) {
+                this.setHeightOffset(0);
+                this.heightOffsetInitialized = true;
+            }
 
-        if (!this.heightOffsetInitialized) {
-            this.setHeightOffset(0);
-            this.heightOffsetInitialized = true;
+            const {firstItemIndex, lastItemIndex, heightOffset} = this.domHelperService.getVisibleItemBounds(
+                this.bodyElement,
+                this.baseRowHeight,
+                this.scrollBuffer,
+                this.innerData,
+                this.identifiersLookup,
+                scrollingDown,
+                this.data.length,
+                this.firstItemIndex);
+
+            if (this.firstItemIndex !== firstItemIndex || this.lastItemIndex !== lastItemIndex) {
+                this.firstItemIndex = firstItemIndex;
+                this.lastItemIndex = lastItemIndex;
+
+                this.setDisplayData(this.firstItemIndex, this.lastItemIndex);
+
+                this.setListYPosition(heightOffset);
+
+                this.changeDetector.markForCheck();
+            }
+            this.scrollPosition = this.bodyElement.scrollTop;
         }
+    }
 
-        const {firstItemIndex, lastItemIndex, heightOffset} = this.domHelperService.getVisibleItemBounds(
-            this.bodyElement,
-            this.baseRowHeight,
-            this.scrollBuffer,
-            this.innerData,
-            this.identifiersLookup,
-            scrollingDown,
-            this.data.length);
+    private setScrollerSize(size: number): void {
+        console.log("resize");
+        this.scrollSizer.style.height = `${size}px`;
+    }
 
-        if (this.firstItemIndex !== firstItemIndex || this.lastItemIndex !== lastItemIndex) {
-            this.firstItemIndex = firstItemIndex;
-            this.lastItemIndex = lastItemIndex;
-
-            this.setDisplayData(this.firstItemIndex, this.lastItemIndex);
-            this.changeDetector.markForCheck();
-
-            this.listContainer.style.transform = `translateY(${heightOffset}px)`;
-        }
-        this.scrollPosition = this.bodyElement.scrollTop;
+    private setListYPosition(position: number): void {
+        console.log("set position");
+        this.listContainer.style.transform = `translateY(${position}px)`;
     }
 
     private setHeightOffset(index: number): void {

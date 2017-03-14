@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
             this.data = [...this.data, ...nextPageData];
             this.changeDetectorRef.detectChanges();
-        }, 500);
+        }, 2000);
     }
 
     public onSelectionChanged(data: any[]): void {
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             .map((response: Response) => {
                 this.dataSet = response.json();
 
-                this.data = this.dataSet.slice(0, 20).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
+                this.data = this.dataSet.slice(0, 1000).map((i: any) => Object.assign(i, {rowMarkData: {letter: i.name}}));
                 this.initialSelected = [this.data[0], this.data[4]];
                 this.changeDetectorRef.detectChanges();
             })

@@ -21,7 +21,10 @@ import {RowData, RowDragEndedEvent, RowMarkData, Column, RowHeightChangedEvent} 
     selector: "data-grid-row",
     template: `
       <div class="data-table-body-row" [draggable]="allowRowsReorder">
-          <div class="data-table-body-row-columns" [ngStyle]="rowData.relocated && relocatedStyles" (click)="onColumnsRowClicked()">
+          <div class="data-table-body-row-columns" 
+               [ngStyle]="rowData.relocated && relocatedStyles"
+               [style.minHeight]="innerHeight"
+               (click)="onColumnsRowClicked()">
               <template [ngIf]="rowMarkField && rowData.data[rowMarkField]">
                     <div class="column-marker" [style.border-color]="rowData.data[rowMarkField].color">
                     <span *ngIf="rowData.data[rowMarkField].letter">{{rowData.data[rowMarkField].letter}}</span>      
@@ -70,11 +73,13 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly relocatedStyles: string[];
     @Input() public initializeSelected: boolean;
     @Input() public enableVirtualScroll: boolean;
+    @Input() public height: number;
     @Output() public onRowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public onRowDragEnded: EventEmitter<RowDragEndedEvent> = new EventEmitter();
     @Output() public onRowHeightChanged: EventEmitter<RowHeightChangedEvent> = new EventEmitter();
     @HostBinding("attr.data-identifier") identifier: string;
 
+    public innerHeight: string;
     private element: HTMLDivElement;
     private draggingSubscribersInitialized: boolean;
     private onDragOver$: Subscription;
@@ -90,6 +95,8 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
 
     public ngOnInit(): void {
         this.initRowMarkData();
+
+        this.innerHeight = this.height ? `${this.height}px` : "auto";
 
         this.identifier = this.rowData.identifier;
     }
@@ -231,7 +238,7 @@ export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
         this.changeDetector.detectChanges();
 
         const style = window.getComputedStyle(this.el.nativeElement),
-            currentHeight = parseFloat(style.height) + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+            currentHeight = parseFloat(style.height);
 
         if (this.rowData.rowHeight !== currentHeight) {
             const previousHeight = this.rowData.rowHeight || 0;

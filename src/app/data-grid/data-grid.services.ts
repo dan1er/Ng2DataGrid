@@ -48,7 +48,8 @@ export class DomHelperService {
                                 data: Map<RowData>,
                                 identifiersLookup: string[],
                                 scrollingDown: boolean,
-                                totalRecords: number): {firstItemIndex: number, lastItemIndex: number, heightOffset: number} {
+                                totalRecords: number,
+                                previousFirstItem: number = 0): {firstItemIndex: number, lastItemIndex: number, heightOffset: number} {
         if (!container) {
             return;
         }
@@ -94,7 +95,7 @@ export class DomHelperService {
                 }
             }
 
-            if (firstItemFound) {
+            if (firstItemFound && !(scrollingDown && firstItemIndex < previousFirstItem)) {
                 // if row visible
                 lastItemIndex = Math.max(0, firstItemIndex + itemsPerContainer + buffer);
                 firstItemIndex = Math.max(0, firstItemIndex - buffer);
@@ -123,18 +124,25 @@ export class DomHelperService {
                 lastItemIndex = Math.max(0, firstItemIndex + itemsPerContainer + buffer);
                 firstItemIndex = Math.max(0, firstItemIndex - buffer);
 
-                const currentOffset = data.get(identifiersLookup[firstItemIndex]).heightOffset,
+                if (scrollingDown && firstItemIndex < previousFirstItem) {
+                    firstItemIndex = firstItemIndex + 1;
+                    lastItemIndex = lastItemIndex + 1;
+                }
+
+                const itemAtPosition = data.get(identifiersLookup[firstItemIndex]),
+                    currentOffset = itemAtPosition.heightOffset || firstItemIndex * rowHeight,
                     normalOffset = firstItemIndex * rowHeight;
 
                 if (currentOffset > normalOffset && scrollBottomHeight * buffer > currentOffset - normalOffset) {
                     // expanded records
                     heightOffset = normalOffset;
+                    console.log("expanded");
                 } else {
                     heightOffset = currentOffset;
                 }
             }
         }
-
+        console.log(`${firstItemIndex} - ${lastItemIndex} - ${heightOffset}`);
         return {
             firstItemIndex,
             lastItemIndex,
