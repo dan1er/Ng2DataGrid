@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d858a0ec-9916-4cbb-93aa-03af82e9d346" name="Default" comment="Added methods to DomHelper">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/FontAwesome.otf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/Simple-Line-Icons.eot" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/Simple-Line-Icons.ttf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/Simple-Line-Icons.woff" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/Simple-Line-Icons.woff2" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/fontawesome-webfont.eot" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/fontawesome-webfont.ttf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/fontawesome-webfont.woff" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/fontawesome-webfont.woff2" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-filetypes-regular.eot" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-filetypes-regular.ttf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-filetypes-regular.woff" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-filetypes-regular.woff2" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-regular.eot" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-regular.ttf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-regular.woff" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-regular.woff2" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-social-regular.eot" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-social-regular.ttf" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-social-regular.woff" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-social-regular.woff2" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/css/glyphicons-filetypes.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/css/glyphicons-social.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/css/glyphicons.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/Simple-Line-Icons.svg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/fontawesome-webfont.svg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-filetypes-regular.svg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-regular.svg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/app/assets/fonts/glyphicons-social-regular.svg" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/data-grid/fonts/flaticon/Flaticon.eot" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/data-grid/fonts/flaticon/Flaticon.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/data-grid/fonts/flaticon/Flaticon.ttf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/data-grid/fonts/flaticon/Flaticon.woff" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/data-grid/fonts/flaticon/flaticon.css" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/app.component.html" afterPath="$PROJECT_DIR$/src/app/app.component.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.less" afterPath="$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.less" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.less" afterPath="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.less" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts" afterPath="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less" afterPath="$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/data-grid/variables.less" afterPath="$PROJECT_DIR$/src/app/data-grid/variables.less" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/index.html" afterPath="$PROJECT_DIR$/src/index.html" />
+    </list>
+    <ignored path="$PROJECT_DIR$/.tmp/" />
+    <ignored path="$PROJECT_DIR$/temp/" />
+    <ignored path="$PROJECT_DIR$/tmp/" />
+    <ignored path=".idea/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="app.component.ts" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="9" column="18" lean-forward="false" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+              <folding>
+                <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data-grid.component.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="8041">
+              <caret line="504" column="27" lean-forward="false" selection-start-line="504" selection-start-column="27" selection-end-line="504" selection-end-column="27" />
+              <folding>
+                <element signature="e#0#278#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data-grid-row.component.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="44" lean-forward="false" selection-start-line="15" selection-start-column="44" selection-end-line="15" selection-end-column="44" />
+              <folding>
+                <marker date="1490109101907" expanded="true" signature="599:2697" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="651:2455" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="887:1157" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="991:1131" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="1204:1636" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="1330:1615" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="1699:2209" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="2019:2188" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="2252:2438" ph="..." />
+                <marker date="1490109101907" expanded="true" signature="2497:2684" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data-grid-row.component.less" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.less">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="checkbox.component.less" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.less">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="612">
+              <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data-grid.component.less" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-973">
+              <caret line="8" column="23" lean-forward="false" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="variables.less" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app/data-grid/variables.less">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="272">
+              <caret line="16" column="9" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tsconfig.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/tsconfig.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" column="20" lean-forward="false" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>#C0C0C0</find>
+      <find>expa</find>
+      <find>virtualScrollingEnabled</find>
+      <find>subscribeToBodyScrolling</find>
+      <find>body</find>
+      <find>bodyElement</find>
+      <find>onRowSelectedChanged</find>
+      <find>trySetRowHeightAndNotify</find>
+      <find>onRowExpanded</find>
+      <find>onRowHeightChanged</find>
+      <find>scroll</find>
+      <find>tryNotifyLoadPage</find>
+      <find>procee</find>
+      <find>displayData</find>
+      <find>process</find>
+      <find>proced</find>
+      <find>map</find>
+      <find>Map</find>
+      <find>expandTemplate</find>
+      <find>flat</find>
+      <find>f1</find>
+      <find>@flaticon</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>red</replace>
+      <replace>@fonticon</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid.services.ts" />
+        <option value="$PROJECT_DIR$/.editorconfig" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.ts" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid-column/data-grid-column.component.ts" />
+        <option value="$PROJECT_DIR$/src/app/app.component.ts" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid.model.ts" />
+        <option value="$PROJECT_DIR$/tslint.json" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts" />
+        <option value="$PROJECT_DIR$/src/tsconfig.json" />
+        <option value="$PROJECT_DIR$/src/app/app.component.html" />
+        <option value="$PROJECT_DIR$/src/index.html" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/variables.less" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.less" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.less" />
+        <option value="$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER">
+    <package-json value="$PROJECT_DIR$/package.json" />
+  </component>
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodeModulesDirectoryManager">
+    <handled-path value="$PROJECT_DIR$/node_modules" />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="24" />
+    <option name="width" value="1920" />
+    <option name="height" value="1011" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+        </expanded-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ng2DataGrid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ng2DataGrid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ng2DataGrid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ng2DataGrid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$USER_HOME$/dev/ng-data-grid" />
+    <property name="nodejs_interpreter_path" value="/usr/bin/node" />
+    <property name="SearchEverywhereHistoryKey" value="data-&#9;FILE&#9;file:///home/itachi/work/mine/Ng2DataGrid/src/app/data-grid/data-grid-row/data-grid-row.component.ts&#10;row&#9;FILE&#9;file:///home/itachi/work/mine/Ng2DataGrid/src/app/data-grid/data-grid-row/data-grid-row.component.ts&#10;app.c&#9;FILE&#9;file:///home/itachi/work/mine/Ng2DataGrid/src/app/app.component.html&#10;app.co&#9;FILE&#9;file:///home/itachi/work/mine/Ng2DataGrid/src/app/app.component.ts" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.TypeScript" />
+    <property name="js.eslint.eslintPackage" value="" />
+    <property name="js-jscs-nodeInterpreter" value="/usr/bin/node" />
+    <property name="js-tslint-nodeInterpreter" value="/usr/bin/node" />
+    <property name="js-tslint-package" value="$PROJECT_DIR$/node_modules/tslint" />
+    <property name="typescript-compiler-editor-notification" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/app/assets" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="false" name="start" type="js.build_tools.npm" factoryName="npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" working-dir="">
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run" />
+      <scripts />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="mocha-javascript-test-runner" factoryName="Mocha">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <working-directory />
+      <pass-parent-env>true</pass-parent-env>
+      <envs />
+      <ui />
+      <extra-mocha-options />
+      <test-kind>DIRECTORY</test-kind>
+      <test-directory />
+      <recursive>false</recursive>
+      <method />
+    </configuration>
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="npm.start" />
+    </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="npm.start" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d858a0ec-9916-4cbb-93aa-03af82e9d346" name="Default" comment="" />
+      <created>1487870875931</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1487870875931</updated>
+      <workItem from="1487870877653" duration="1819000" />
+      <workItem from="1487872728805" duration="13082000" />
+      <workItem from="1487964110643" duration="126000" />
+      <workItem from="1488807166854" duration="172000" />
+      <workItem from="1488809627364" duration="17000000" />
+      <workItem from="1488832701723" duration="1095000" />
+      <workItem from="1488835276175" duration="15926000" />
+      <workItem from="1489003221258" duration="404000" />
+      <workItem from="1489152969966" duration="780000" />
+      <workItem from="1489168055891" duration="604000" />
+      <workItem from="1489168784335" duration="109000" />
+      <workItem from="1489169043038" duration="1913000" />
+      <workItem from="1489499605189" duration="1987000" />
+      <workItem from="1490108429740" duration="5288000" />
+    </task>
+    <task id="LOCAL-00001" summary="Introduced changes for virtual scrolling">
+      <created>1487885918355</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1487885918355</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Removed null default param for emitSelectionChanged method">
+      <created>1488814406989</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1488814406989</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added changes for virtual scrolling">
+      <created>1488834326857</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1488834326857</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Detached components from change detector">
+      <created>1488901438708</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1488901438708</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Merge branch 'develop' into implement-virtual-scrolling&#10;&#10;# Conflicts:&#10;#&#9;src/app/data-grid/data-grid-row/data-grid-row.component.ts&#10;">
+      <created>1488902401971</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1488902401971</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added methods to DomHelper">
+      <created>1488922895669</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1488922895669</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="60305000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="24" width="1920" height="1011" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="TypeScript" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25400212" sideWeight="0.76836157" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32497332" sideWeight="0.47570622" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25400212" sideWeight="0.23163842" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23712121" sideWeight="0.5242938" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328911" sideWeight="0.49569893" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="processedProjectFiles" value="true" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/node_modules/karma/config.tpl.js" />
+        <option value="$PROJECT_DIR$/node_modules/reflect-metadata/Reflect.js" />
+        <option value="$PROJECT_DIR$/node_modules/reflect-metadata/Reflect.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/ng2/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/ng2/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/enum/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/enum/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/pipe/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/pipe/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/class/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/class/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/module/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/module/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/service/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/service/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/component/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/component/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/directive/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/directive/index.js" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/interface/index.js.map" />
+        <option value="$PROJECT_DIR$/node_modules/@angular/cli/blueprints/interface/index.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/karma/config.tpl.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/Reflect.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/Reflect.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-hasmetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getmetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-definemetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-hasmetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-decorate.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getmetadatakeys.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getmetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-deletemetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getownmetadatakeys.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getownmetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-hasownmetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-deletemetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getownmetadatakeys.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-decorate.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-hasownmetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-metadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getmetadatakeys.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-getownmetadata.js" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-definemetadata.js.map" />
+        <option value="$USER_HOME$/dev/ng-data-grid/node_modules/reflect-metadata/test/reflect-metadata.js.map" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Introduced changes for virtual scrolling" />
+    <MESSAGE value="Removed null default param for emitSelectionChanged method" />
+    <MESSAGE value="Added changes for virtual scrolling" />
+    <MESSAGE value="Detached components from change detector" />
+    <MESSAGE value="Merge branch 'develop' into implement-virtual-scrolling&#10;&#10;# Conflicts:&#10;#&#9;src/app/data-grid/data-grid-row/data-grid-row.component.ts&#10;" />
+    <MESSAGE value="Added methods to DomHelper" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added methods to DomHelper" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8262">
+          <caret line="486" column="43" lean-forward="false" selection-start-line="486" selection-start-column="43" selection-end-line="486" selection-end-column="43" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tsconfig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="18" lean-forward="false" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="17" column="13" lean-forward="false" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid.model.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="true" signature="2445:2451" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="18" lean-forward="false" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="41" lean-forward="false" selection-start-line="20" selection-start-column="41" selection-end-line="20" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid.model.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="true" signature="2445:2451" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9809">
+          <caret line="608" column="34" lean-forward="false" selection-start-line="608" selection-start-column="34" selection-end-line="608" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="18" lean-forward="false" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid.model.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="true" signature="2445:2451" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9809">
+          <caret line="608" column="34" lean-forward="false" selection-start-line="608" selection-start-column="34" selection-end-line="608" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="6" column="18" lean-forward="false" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="56" column="48" lean-forward="false" selection-start-line="56" selection-start-column="48" selection-end-line="56" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7140">
+          <caret line="449" column="24" lean-forward="false" selection-start-line="449" selection-start-column="24" selection-end-line="449" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2499">
+          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5610">
+          <caret line="344" column="24" lean-forward="false" selection-start-line="344" selection-start-column="24" selection-end-line="344" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2006">
+          <caret line="123" column="0" lean-forward="false" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5610">
+          <caret line="344" column="24" lean-forward="false" selection-start-line="344" selection-start-column="24" selection-end-line="344" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2006">
+          <caret line="123" column="0" lean-forward="false" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="5" lean-forward="false" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="799">
+          <caret line="47" column="26" lean-forward="false" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/@angular/core/src/change_detection/constants.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.editorconfig">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="31" lean-forward="false" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid.services.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-column/data-grid-column.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="28" column="57" lean-forward="false" selection-start-line="28" selection-start-column="57" selection-end-line="28" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="680">
+          <caret line="53" column="37" lean-forward="false" selection-start-line="53" selection-start-column="37" selection-end-line="53" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/@angular/core/src/metadata/lifecycle_hooks.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="130" column="30" lean-forward="false" selection-start-line="130" selection-start-column="30" selection-end-line="130" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid.model.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1489499669454" expanded="true" signature="2445:2451" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tslint.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1207">
+          <caret line="71" column="18" lean-forward="true" selection-start-line="71" selection-start-column="18" selection-end-line="71" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/@types/lodash/index.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="688">
+          <caret line="21035" column="10" lean-forward="false" selection-start-line="21035" selection-start-column="10" selection-end-line="21035" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tsconfig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="20" lean-forward="false" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/typescriptCompiler/external/lib.es6.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="812">
+          <caret line="4663" column="17" lean-forward="false" selection-start-line="4663" selection-start-column="17" selection-end-line="4663" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8041">
+          <caret line="504" column="27" lean-forward="false" selection-start-line="504" selection-start-column="27" selection-end-line="504" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#278#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/assets/css/style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="44" lean-forward="false" selection-start-line="15" selection-start-column="44" selection-end-line="15" selection-end-column="44" />
+          <folding>
+            <marker date="1490109101907" expanded="true" signature="599:2697" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="651:2455" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="887:1157" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="991:1131" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="1204:1636" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="1330:1615" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="1699:2209" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="2019:2188" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="2252:2438" ph="..." />
+            <marker date="1490109101907" expanded="true" signature="2497:2684" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/variables.less">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="9" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid/data-grid.component.less">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-973">
+          <caret line="8" column="23" lean-forward="false" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/checkbox/checkbox.component.less">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/data-grid/data-grid-row/data-grid-row.component.less">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="43" lean-forward="true" selection-start-line="9" selection-start-column="43" selection-end-line="9" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/app.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="9" column="18" lean-forward="false" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+          <folding>
+            <marker date="1489499669454" expanded="false" signature="7:25" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

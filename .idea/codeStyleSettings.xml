@@ -6,6 +6,8 @@
         <option name="AUTODETECT_INDENTS" value="false" />
         <TypeScriptCodeStyleSettings>
           <option name="USE_PUBLIC_MODIFIER" value="true" />
+          <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
+          <option name="SPACES_WITHIN_IMPORTS" value="true" />
         </TypeScriptCodeStyleSettings>
         <codeStyleSettings language="LESS">
           <indentOptions>

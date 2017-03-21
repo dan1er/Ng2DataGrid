@@ -61,7 +61,7 @@ import { get } from "lodash";
           </div>
       </div>
   `,
-    styleUrls: ["./data-grid-row.component.less"]
+    styleUrls: ["data-grid-row.component.less"]
 })
 export class DataGridRowComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() public readonly columns: Column[];
