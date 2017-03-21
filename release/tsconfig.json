@@ -19,7 +19,7 @@
         ]
     },
     "files": [
-        "./data-grid/data-grid.module.ts"
+      "./data-grid/data-grid.module.ts"
     ],
     "angularCompilerOptions": {
         "skipTemplateCodegen": true
